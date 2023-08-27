@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "start": "node dist/main.js",
+    "dev": "ts-node src/main.ts"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
+    "mysql2": "^3.6.0",
+    "node-schedule": "^2.1.1",
     "puppeteer": "^21.1.0"
   }
 }

@@ -1,23 +1,24 @@
-import 'dotenv/config';
 import puppeteer, { Browser, Page } from 'puppeteer';
 import config from './config';
 import { parseComments } from './parsers/comment-parser';
 import { parsePostContent } from './parsers/post-parser';
 
-const fs = require('fs');
-
-const POST_URL = 'https://mbasic.facebook.com/groups/817474248860972/posts/1373289956612729/'
-const CHROME_PROFILE_ID = 1
-
-class Crawler {
+export class PostCrawler {
   browser: Browser;
   page: Page;
+  url: string;
+  profileId: number;
+
+  constructor(url: string, profileId = 1) {
+    this.url = url;
+    this.profileId = profileId;
+  }
 
   async initPuppeter() {
     this.browser = await puppeteer.launch({
       headless: config.headless,
       args: ["--no-sandbox"],
-      userDataDir: `./profile/${CHROME_PROFILE_ID}`,
+      userDataDir: `./profile/${this.profileId}`,
       devtools: false,
     });
     const context = this.browser.defaultBrowserContext();
@@ -82,26 +83,24 @@ class Crawler {
     try {
       await this.initPuppeter();
 
-      const loginResponse = await crawler.loginFacebook(process.env.EMAIL, process.env.PASS);
+      const loginResponse = await this.loginFacebook(process.env.FB_EMAIL, process.env.FB_PASS);
       if (!loginResponse.success) {
         throw new Error('Login failed');
       }
 
-      await this.page.goto(POST_URL, { waitUntil: "networkidle2" });
+      await this.page.goto(this.url, { waitUntil: "networkidle2" });
 
       const postContent = await this.getPostContent();
       const comments = await this.getComments();
 
-      // save comments to json file
-      const data = JSON.stringify(comments);
-      fs.writeFileSync('comments.json', data);
-
-      // close
-      await this.browser.close();
+      return {
+        postContent,
+        comments
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
-      // await this.browser.close();
+      await this.browser.close();
     }
   }
 
@@ -133,6 +132,3 @@ class Crawler {
     return this.page.evaluate(parsePostContent)
   }
 }
-
-const crawler = new Crawler();
-crawler.start();
