@@ -1,0 +1,73 @@
+openapi: 3.0.0
+info:
+  title: Queue Monitoring API
+  version: 1.0.0
+paths:
+  /jobs:
+    get:
+      summary: Get all crawl jobs
+      operationId: getCrawlJobs
+      responses:
+        '200':
+          description: List of crawl jobs
+          
+    post:
+      summary: Create a new crawl job
+      operationId: addCrawlJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                url: https://www.facebook.com/groups/photographyasfineart/posts/2690914601048738
+                # interval is number
+                interval: 5
+      responses:
+        '200':
+          description: Job added successfully
+        '500':
+          description: An error occurred while adding the job
+
+  /jobs/{id}:
+    delete:
+      summary: Remove a crawl job by ID
+      operationId: removeCrawlJob
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the job to be removed
+      responses:
+        '200':
+          description: Job removed successfully
+        '500':
+          description: An error occurred while removing the job
+
+    patch:
+      summary: Update a crawl job by ID
+      operationId: updateCrawlJob
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the job to be updated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                interval: 5
+      responses:
+        '200':
+          description: Job updated successfully
+        '500':
+          description: An error occurred while updating the job
+

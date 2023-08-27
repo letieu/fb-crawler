@@ -20,3 +20,15 @@ services:
       PMA_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "8080:80"
+
+  redis:
+    image: bitnami/redis:7.0
+    container_name: fb-crawler-redis
+    volumes:
+      - ./data/redis:/bitnami/redis/data
+    env_file:
+      - .env
+    ports:
+      - '${REDIS_PORT}:6379'
+    environment:
+      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'

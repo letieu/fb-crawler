@@ -1,8 +1,17 @@
 import * as mysql from 'mysql2/promise';
 
-interface JobConfig {
-  url: string;
-  interval: number;
+type Comment = {
+  id: string;
+  name: string;
+  phone: string;
+  uid: string;
+  comment: string;
+  postId: string;
+}
+
+type Post = {
+  postContent: string;
+  comments: Comment[];
 }
 
 class Database {
@@ -14,34 +23,37 @@ class Database {
     this.dbConnection = await mysql.createConnection(this.dbConfig);
     await this.dbConnection.connect();
 
-    await this.migrate();
     console.log('Database initialized');
   }
 
-  private async migrate() {
-    await this.dbConnection.execute(`
-      CREATE TABLE IF NOT EXISTS job_configs (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        url VARCHAR(255) NOT NULL,
-        \`interval\` INT NOT NULL
-      );
-    `);
-
-    console.log('Migration successful: Job configuration table created.');
+  async savePost(post: Post) {
+    await this.saveComments(post.comments);
   }
 
-  async savePost(post: any) {
-    // TODO: Implement this
-    console.log(post, 'post');
-  }
+  async saveComments(comments) {
+    if (comments.length === 0) {
+      console.log('No comments to insert.');
+      return;
+    }
 
-  async loadJobConfigs(): Promise<JobConfig[]> {
-    const [rows] = await this.dbConnection.execute(`
-      SELECT * FROM job_configs;
-    `);
+    const values = [];
+    const placeholders = [];
 
-    console.log('Loaded job configs:', rows);
-    return rows as JobConfig[];
+    for (const comment of comments) {
+      placeholders.push('(?, ?, ?, ?, ?)');
+      values.push(comment.name, comment.phone, comment.uid, comment.comment, comment.postId);
+    }
+
+    const placeholdersString = placeholders.join(', ');
+
+    const query = `INSERT INTO comments (name, phone, uid, comment, post_id) VALUES ${placeholdersString}`;
+
+    try {
+      const [rows, fields] = await this.dbConnection.query(query, values);
+      console.log(`Inserted ${comments.length} comments`);
+    } catch (error) {
+      console.error('Error inserting comments:', error);
+    }
   }
 
   async close() {

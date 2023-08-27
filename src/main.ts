@@ -1,7 +1,7 @@
 import { ConnectionOptions } from "mysql2";
 import Database from "./database";
-import { BackgroundCrawler } from "./scheduler";
 import 'dotenv/config';
+import { CrawlerQueue } from "./queue";
 
 const dbConfig: ConnectionOptions = {
   host: process.env.MYSQL_HOST || 'localhost',
@@ -15,23 +15,17 @@ async function main() {
   const db = new Database(dbConfig);
   await db.init();
 
-  const jobConfigs = await db.loadJobConfigs();
+  const queue = new CrawlerQueue();
 
-  if (jobConfigs.length === 0) {
-    console.log('No jobs to run. Exiting...');
-    await db.close();
-    process.exit();
-  }
+  await queue.addCrawlJob(
+    'https://www.facebook.com/groups/2571741279631519?multi_permalinks=4190719027733728&hoisted_section_header_type=recently_seen',
+    1
+  );
 
-  const backgroundCrawler = new BackgroundCrawler(jobConfigs, db);
-  await backgroundCrawler.setupJobs();
-
-  process.on('SIGINT', async () => {
-    console.log('Stopping background crawler...');
-    backgroundCrawler.stop();
-    await db.close();
-    process.exit();
-  });
+  await queue.addCrawlJob(
+    'https://www.facebook.com/groups/817474248860972?multi_permalinks=1373989419876116&hoisted_section_header_type=recently_seen',
+    1
+  );
 }
 
 main().catch(console.error);

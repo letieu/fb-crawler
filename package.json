@@ -12,12 +12,23 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bull": "^4.10.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@bull-board/api": "^5.8.0",
+    "@bull-board/express": "^5.8.0",
+    "body-parser": "^1.20.2",
+    "bull": "^4.11.3",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "install": "^0.13.0",
     "mysql2": "^3.6.0",
     "node-schedule": "^2.1.1",
-    "puppeteer": "^21.1.0"
+    "npm": "^9.8.1",
+    "puppeteer": "^21.1.0",
+    "puppeteer-cluster": "^0.23.0",
+    "swagger-ui-express": "^5.0.0",
+    "yaml": "^2.3.1"
   }
 }

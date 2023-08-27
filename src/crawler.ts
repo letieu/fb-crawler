@@ -10,10 +10,10 @@ export class PostCrawler {
   profileId: number;
   headless: boolean;
 
-  constructor(url: string, profileId = 1, headless = true) {
+  constructor(url: string, options?: { profileId?: number; headless?: boolean }) {
     this.url = url;
-    this.profileId = profileId;
-    this.headless = headless;
+    this.profileId = options?.profileId ?? 1;
+    this.headless = options?.headless ?? true;
   }
 
   async initPuppeter() {
@@ -82,6 +82,7 @@ export class PostCrawler {
   }
 
   async start() {
+    console.log(`Start crawling post ${this.url} \n`);
     try {
       await this.initPuppeter();
 
@@ -90,7 +91,8 @@ export class PostCrawler {
         throw new Error('Login failed');
       }
 
-      await this.page.goto(this.url, { waitUntil: "networkidle2" });
+      const url = convertToDesiredFormat(this.url);
+      await this.page.goto(url, { waitUntil: "networkidle2" });
 
       const postContent = await this.getPostContent();
       const comments = await this.getComments();
@@ -133,4 +135,27 @@ export class PostCrawler {
   async getPostContent() {
     return this.page.evaluate(parsePostContent)
   }
+}
+
+function convertToDesiredFormat(url) {
+  const matchesType1 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\?.*multi_permalinks=([\w\-]+)/i);
+  const matchesType2 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/posts\/([\w\-]+)/i);
+  const matchesType3 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/?([\w\-]+)/i);
+
+  let groupId, postId;
+
+  if (matchesType1) {
+    groupId = matchesType1[1];
+    postId = matchesType1[2];
+  } else if (matchesType2) {
+    groupId = matchesType2[1];
+    postId = matchesType2[2];
+  } else if (matchesType3) {
+    groupId = matchesType3[1];
+    postId = matchesType3[2];
+  } else {
+    return url.replace('www', 'mbasic');
+  }
+
+  return `https://mbasic.facebook.com/groups/${groupId}/posts/${postId}/`;
 }
