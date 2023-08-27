@@ -8,15 +8,17 @@ export class PostCrawler {
   page: Page;
   url: string;
   profileId: number;
+  headless: boolean;
 
-  constructor(url: string, profileId = 1) {
+  constructor(url: string, profileId = 1, headless = true) {
     this.url = url;
     this.profileId = profileId;
+    this.headless = headless;
   }
 
   async initPuppeter() {
     this.browser = await puppeteer.launch({
-      headless: config.headless,
+      headless: this.headless ? 'new' : false,
       args: ["--no-sandbox"],
       userDataDir: `./profile/${this.profileId}`,
       devtools: false,

@@ -4,10 +4,11 @@ import { BackgroundCrawler } from "./scheduler";
 import 'dotenv/config';
 
 const dbConfig: ConnectionOptions = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DATABASE,
+  host: process.env.MYSQL_HOST || 'localhost',
+  port: Number(process.env.MYSQL_PORT),
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
 };
 
 async function main() {
@@ -15,6 +16,12 @@ async function main() {
   await db.init();
 
   const jobConfigs = await db.loadJobConfigs();
+
+  if (jobConfigs.length === 0) {
+    console.log('No jobs to run. Exiting...');
+    await db.close();
+    process.exit();
+  }
 
   const backgroundCrawler = new BackgroundCrawler(jobConfigs, db);
   await backgroundCrawler.setupJobs();
@@ -28,8 +35,3 @@ async function main() {
 }
 
 main().catch(console.error);
-
-// const crawlerConfig = [
-//   { url: 'https://mbasic.facebook.com/groups/817474248860972/posts/1373289956612729/', interval: 1 }, // Crawls every 10 minutes
-//   { url: 'https://mbasic.facebook.com/groups/817474248860972/posts/1373289956612729/', interval: 30 }, // Crawls every 30 minutes
-// ];

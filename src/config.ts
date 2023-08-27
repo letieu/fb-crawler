@@ -1,6 +1,5 @@
 export default {
   response_timeout: 10000,
-  headless: false,
   base_url: "https://www.facebook.com/",
   username_field: 'input[name="email"]',
   password_field: 'input[name="pass"]',
