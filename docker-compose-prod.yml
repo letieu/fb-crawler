@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  redis:
+    image: bitnami/redis:7.0
+    container_name: fb-crawler-redis
+    volumes:
+      - ./data/redis:/bitnami/redis/data
+    env_file:
+      - .env
+    environment:
+      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
+    networks:
+      - fb-crawler-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fb-crawler-app
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+
+  chrome:
+    image: browserless/chrome
+    container_name: fb-crawler-chrome
+    networks:
+      - fb-crawler-network
+
+networks:
+  fb-crawler-network:
+    driver: bridge

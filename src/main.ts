@@ -105,7 +105,7 @@ async function main() {
   // doc
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-  app.listen(3000, () => {
+  app.listen(+process.env.APP_PORT, () => {
     console.log('Running on 3000...');
     console.log('For the UI, open http://localhost:3000/docs');
   });

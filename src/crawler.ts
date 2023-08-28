@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, Page, PuppeteerLaunchOptions } from 'puppeteer';
 import config from './config';
 import { parseComments } from './parsers/comment-parser';
 import { parsePost } from './parsers/post-parser';
@@ -17,12 +17,29 @@ export class PostCrawler {
   }
 
   async initPuppeter() {
-    this.browser = await puppeteer.launch({
-      headless: this.headless ? 'new' : false,
-      args: ["--no-sandbox"],
-      userDataDir: `./profile/${this.profileId}`,
-      devtools: false,
-    });
+
+    const options: PuppeteerLaunchOptions = {
+    }
+
+    if (process.env.BROWSER_ENDPOINT) {
+      // use headless chrome
+      this.browser = await puppeteer.connect({
+        browserWSEndpoint: process.env.BROWSER_ENDPOINT,
+      });
+    }
+    else {
+      this.browser = await puppeteer.launch({
+        headless: this.headless ? 'new' : false,
+        args: ["--no-sandbox", "--disable-gpu"],
+        userDataDir: `./profile/${this.profileId}`,
+        devtools: false,
+      });
+    }
+
+    if (!this.browser) {
+      throw new Error('Cannot init browser');
+    }
+
     const context = this.browser.defaultBrowserContext();
     context.overridePermissions(config.base_url, [
       "geolocation",
