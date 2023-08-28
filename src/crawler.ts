@@ -141,6 +141,21 @@ export class PostCrawler {
         // random sleep from 1ss to 10s
         await new Promise((resolve) => setTimeout(resolve, 1000 + Math.floor(Math.random() * 9000)));
 
+        // scroll to load more
+        await this.page.evaluate(() => {
+          const element = document.querySelector("[id^=see_next_] > a");
+
+          if (element) {
+            element.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "nearest",
+            });
+          }
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         await loadMoreLink.click();
         await this.page.waitForNavigation({ waitUntil: "networkidle2" });
       }

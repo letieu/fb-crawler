@@ -7,7 +7,7 @@ services:
     volumes:
       - ./data/redis:/bitnami/redis/data
     env_file:
-      - .env
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     environment:
       - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
     networks:
