@@ -31,6 +31,8 @@ async function main() {
   await db.init();
   await queue.init(db);
 
+  await queue.reloadQueue();
+
   const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
     queues: [new BullAdapter(queue.crawlQueue)],
     serverAdapter: serverAdapter,

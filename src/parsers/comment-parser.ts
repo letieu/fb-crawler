@@ -9,8 +9,14 @@ export const parseComments = () => {
     if (!userLink) {
       return null;
     }
-    const regex = /id=(\d+)/;
 
+    if (userLink.includes("profile.php")) {
+      const regex = /id=(\d+)/;
+      const match = userLink.match(regex);
+      return match ? match[1] : null;
+    }
+
+    const regex = /\/([\w\-\.]+)\?/i;
     const match = userLink.match(regex);
 
     return match ? match[1] : null;

@@ -121,11 +121,11 @@ export class PostCrawler {
       const loadMoreLink = await this.page.$(loadMoreSelector);
 
       if (loadMoreLink) {
-        await loadMoreLink.click();
-        await this.page.waitForNavigation({ waitUntil: "networkidle2" });
-
         // random sleep from 1ss to 10s
         await new Promise((resolve) => setTimeout(resolve, 1000 + Math.floor(Math.random() * 9000)));
+
+        await loadMoreLink.click();
+        await this.page.waitForNavigation({ waitUntil: "networkidle2" });
       }
       else {
         break;

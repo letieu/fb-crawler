@@ -26,7 +26,9 @@ export class CrawlerQueue {
 
     this.crawlQueue.on('completed', (job, result) => {
       const { postId } = job.data;
-      db.savePost(postId, result);
+      if (result) {
+        db.savePost(postId, result);
+      }
     });
 
     this.crawlQueue.on('failed', (job, err) => {
@@ -80,7 +82,7 @@ export class CrawlerQueue {
     for (const job of jobs) {
       await this.removeCrawlJob(job.id);
     }
-    
+
     // load all posts from database
     const posts = await this.db.getPosts();
 
