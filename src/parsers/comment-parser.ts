@@ -27,13 +27,13 @@ export const parseComments = () => {
 
   const comments = Array.from(commentNodes).map((commentNode) => {
     const comment = {
+      commentId: commentNode.id,
       name: getUser(commentNode),
       comment: getContent(commentNode),
       images: getImages(commentNode),
       timestamp: getTimestamp(commentNode),
       phone: "", // TODO:
       uid: "", // TODO:
-      id: commentNode.id,
       postId: 1, // TODO:
     };
     return comment;

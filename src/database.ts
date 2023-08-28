@@ -1,7 +1,7 @@
 import * as mysql from 'mysql2/promise';
 
 type Comment = {
-  id: string;
+  commentId: string;
   name: string;
   phone: string;
   uid: string;
@@ -27,10 +27,11 @@ class Database {
   }
 
   async savePost(post: Post) {
+    console.log(post.comments[0]);
     await this.saveComments(post.comments);
   }
 
-  async saveComments(comments) {
+  async saveComments(comments: Comment[]) {
     if (comments.length === 0) {
       console.log('No comments to insert.');
       return;
@@ -40,13 +41,13 @@ class Database {
     const placeholders = [];
 
     for (const comment of comments) {
-      placeholders.push('(?, ?, ?, ?, ?)');
-      values.push(comment.name, comment.phone, comment.uid, comment.comment, comment.postId);
+      placeholders.push('(?, ?, ?, ?, ?, ?)');
+      values.push(comment.commentId, comment.name, comment.phone, comment.uid, comment.comment, comment.postId);
     }
 
     const placeholdersString = placeholders.join(', ');
 
-    const query = `INSERT INTO comments (name, phone, uid, comment, post_id) VALUES ${placeholdersString}`;
+    const query = `REPLACE INTO comments (fb_id, name, phone, uid, comment, post_id) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.dbConnection.query(query, values);
@@ -54,6 +55,12 @@ class Database {
     } catch (error) {
       console.error('Error inserting comments:', error);
     }
+  }
+
+  async getPosts() {
+    const query = 'SELECT * FROM posts';
+    const [rows, fields] = await this.dbConnection.query(query);
+    return rows;
   }
 
   async close() {
