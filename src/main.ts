@@ -41,12 +41,21 @@ async function main() {
   app.use('/queues', serverAdapter.getRouter());
 
   // manage jobs
-  app.post('/jobs', (req, res) => {
-    const { url, interval } = req.body;
+  app.post('/jobs', async (req, res) => {
+    const { id, interval } = req.body;
     try {
-      queue.addCrawlJob(url, interval); // Call the method to add a new job
+      const post = await db.getPost(id);
+      if (!post) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      const url = post.link;
+
+      queue.addCrawlJob(id, url, interval);
       res.status(200).json({ message: 'Job added successfully' });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'An error occurred while adding the job' });
     }
   });
@@ -56,6 +65,7 @@ async function main() {
       queue.removeCrawlJob(req.params.id); // Call the method to remove a job
       res.status(200).json({ message: 'Job removed successfully' });
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'An error occurred while removing the job' });
     }
   });
@@ -65,17 +75,8 @@ async function main() {
       const jobs = await queue.getCrawlJobs(); // Call the method to get all jobs
       res.status(200).json(jobs);
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'An error occurred while getting the jobs' });
-    }
-  });
-
-  app.patch('/jobs/:id', (req, res) => {
-    const { interval } = req.body;
-    try {
-      queue.updateCrawlJob(req.params.id, interval); // Call the method to update a job
-      res.status(200).json({ message: 'Job updated successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'An error occurred while updating the job' });
     }
   });
 
@@ -84,6 +85,17 @@ async function main() {
       const posts = await db.getPosts();
       res.status(200).json(posts);
     } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred while getting the posts' });
+    }
+  });
+
+  app.post('/reload', async (req, res) => {
+    try {
+      await queue.reloadQueue();
+      res.status(200).json("Ok");
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'An error occurred while getting the posts' });
     }
   });

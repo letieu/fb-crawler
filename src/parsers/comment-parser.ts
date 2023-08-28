@@ -46,7 +46,6 @@ export const parseComments = () => {
       images: getImages(commentNode),
       timestamp: getTimestamp(commentNode),
       uid: getUserId(commentNode),
-      postId: 1, // TODO:
     };
     return comment;
   });

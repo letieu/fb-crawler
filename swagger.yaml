@@ -21,8 +21,7 @@ paths:
             schema:
               type: object
               example:
-                url: https://www.facebook.com/groups/photographyasfineart/posts/2690914601048738
-                # interval is number
+                id: 1
                 interval: 5
       responses:
         '200':
@@ -47,27 +46,12 @@ paths:
         '500':
           description: An error occurred while removing the job
 
-    patch:
-      summary: Update a crawl job by ID
-      operationId: updateCrawlJob
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: ID of the job to be updated
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                interval: 5
+  /reload:
+    post:
+      summary: Reload the queue
+      operationId: reloadQueue
       responses:
         '200':
-          description: Job updated successfully
+          description: Queue reloaded successfully
         '500':
-          description: An error occurred while updating the job
-
+          description: An error occurred while reloading the queue

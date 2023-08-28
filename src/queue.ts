@@ -4,10 +4,12 @@ import Database from './database';
 
 type CrawlJob = {
   url: string;
+  postId: number;
 }
 
 export class CrawlerQueue {
   crawlQueue: Queue.Queue<CrawlJob>;
+  db: Database;
 
   async init(db: Database) {
     const redisUrl = this.buildRedisConfig();
@@ -23,8 +25,8 @@ export class CrawlerQueue {
     });
 
     this.crawlQueue.on('completed', (job, result) => {
-      console.log(`Job ${job.id} completed with result ${result}`);
-      db.savePost(result);
+      const { postId } = job.data;
+      db.savePost(postId, result);
     });
 
     this.crawlQueue.on('failed', (job, err) => {
@@ -43,14 +45,16 @@ export class CrawlerQueue {
       console.log(`Job ${job.id} active`);
     });
 
+    this.db = db;
   }
 
-  async addCrawlJob(url: string, interval: number = 0) {
-    await this.crawlQueue.add({ url }, {
+  async addCrawlJob(postId: number, url: string, interval: number = 0) {
+    await this.crawlQueue.add({ url, postId }, {
       repeat: {
         every: interval * 1000 * 60,
-        limit: 100
+        limit: 20
       },
+      delay: 5 * 1000, // delay 5 seconds
       jobId: url
     });
 
@@ -69,10 +73,21 @@ export class CrawlerQueue {
     }));
   }
 
-  async updateCrawlJob(jobId: string, interval: number) {
-    await this.crawlQueue.removeRepeatableByKey(jobId);
-    await this.addCrawlJob(jobId, interval);
-    console.log(`Updated job ${jobId} with interval ${interval} minutes \n`);
+  async reloadQueue() {
+    const jobs = await this.getCrawlJobs();
+
+    // remove all jobs from queue
+    for (const job of jobs) {
+      await this.removeCrawlJob(job.id);
+    }
+    
+    // load all posts from database
+    const posts = await this.db.getPosts();
+
+    // add jobs to queue
+    for (const post of posts as any) {
+      await this.addCrawlJob(post.id, post.link, post.interval ?? +process.env.INTERVAL);
+    }
   }
 
   private buildRedisConfig(): Queue.QueueOptions {

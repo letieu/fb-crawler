@@ -6,11 +6,11 @@ type Comment = {
   phone: string;
   uid: string;
   comment: string;
-  postId: string;
 }
 
 type Post = {
-  postContent: string;
+  content: string;
+  userId: string;
   comments: Comment[];
 }
 
@@ -26,12 +26,16 @@ class Database {
     console.log('Database initialized');
   }
 
-  async savePost(post: Post) {
-    console.log(post.comments[0]);
-    await this.saveComments(post.comments);
+  async savePost(postId: number, post: Post) {
+    const query = 'UPDATE posts SET title = ? WHERE id = ?';
+    const values = [post.content, postId];
+    console.log('Saving post:', values);
+    await this.dbConnection.query(query, values);
+
+    await this.saveComments(postId, post.comments);
   }
 
-  async saveComments(comments: Comment[]) {
+  async saveComments(postId: number, comments: Comment[]) {
     if (comments.length === 0) {
       console.log('No comments to insert.');
       return;
@@ -42,7 +46,7 @@ class Database {
 
     for (const comment of comments) {
       placeholders.push('(?, ?, ?, ?, ?)');
-      values.push(comment.commentId, comment.name, comment.uid, comment.comment, comment.postId);
+      values.push(comment.commentId, comment.name, comment.uid, comment.comment, postId);
     }
 
     const placeholdersString = placeholders.join(', ');
@@ -58,9 +62,16 @@ class Database {
   }
 
   async getPosts() {
-    const query = 'SELECT * FROM posts';
+    // get all post status = 1
+    const query = 'SELECT * FROM posts WHERE status = 1';
     const [rows, fields] = await this.dbConnection.query(query);
     return rows;
+  }
+
+  async getPost(postId: string) {
+    const query = 'SELECT * FROM posts WHERE id = ?';
+    const [rows, fields] = await this.dbConnection.query(query, [postId]);
+    return rows[0];
   }
 
   async close() {

@@ -1,7 +1,7 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import config from './config';
 import { parseComments } from './parsers/comment-parser';
-import { parsePostContent } from './parsers/post-parser';
+import { parsePost } from './parsers/post-parser';
 
 export class PostCrawler {
   browser: Browser;
@@ -94,11 +94,12 @@ export class PostCrawler {
       const url = convertToDesiredFormat(this.url);
       await this.page.goto(url, { waitUntil: "networkidle2" });
 
-      const postContent = await this.getPostContent();
+      const post = await this.getPostContent();
       const comments = await this.getComments();
 
       return {
-        postContent,
+        content: post.content,
+        userId: post.uid,
         comments
       }
     } catch (error) {
@@ -122,7 +123,9 @@ export class PostCrawler {
       if (loadMoreLink) {
         await loadMoreLink.click();
         await this.page.waitForNavigation({ waitUntil: "networkidle2" });
-        new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 500)));
+
+        // random sleep from 1ss to 10s
+        await new Promise((resolve) => setTimeout(resolve, 1000 + Math.floor(Math.random() * 9000)));
       }
       else {
         break;
@@ -133,7 +136,7 @@ export class PostCrawler {
   }
 
   async getPostContent() {
-    return this.page.evaluate(parsePostContent)
+    return this.page.evaluate(parsePost)
   }
 }
 
