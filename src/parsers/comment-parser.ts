@@ -3,6 +3,19 @@ export const parseComments = () => {
     return commentNode.querySelector("h3 > a")?.innerHTML;
   }
 
+  const getUserId = (commentNode: Element) => {
+    const userLink = (commentNode.querySelector("h3 > a") as HTMLAnchorElement)?.href;
+
+    if (!userLink) {
+      return null;
+    }
+    const regex = /id=(\d+)/;
+
+    const match = userLink.match(regex);
+
+    return match ? match[1] : null;
+  }
+
   const getContent = (commentNode: Element) => {
     return commentNode.querySelector("h3 + div")?.innerHTML;
   }
@@ -32,8 +45,7 @@ export const parseComments = () => {
       comment: getContent(commentNode),
       images: getImages(commentNode),
       timestamp: getTimestamp(commentNode),
-      phone: "", // TODO:
-      uid: "", // TODO:
+      uid: getUserId(commentNode),
       postId: 1, // TODO:
     };
     return comment;

@@ -41,13 +41,13 @@ class Database {
     const placeholders = [];
 
     for (const comment of comments) {
-      placeholders.push('(?, ?, ?, ?, ?, ?)');
-      values.push(comment.commentId, comment.name, comment.phone, comment.uid, comment.comment, comment.postId);
+      placeholders.push('(?, ?, ?, ?, ?)');
+      values.push(comment.commentId, comment.name, comment.uid, comment.comment, comment.postId);
     }
 
     const placeholdersString = placeholders.join(', ');
 
-    const query = `REPLACE INTO comments (fb_id, name, phone, uid, comment, post_id) VALUES ${placeholdersString}`;
+    const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.dbConnection.query(query, values);
