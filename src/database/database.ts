@@ -32,7 +32,6 @@ class Database {
     const query = 'REPLACE INTO posts (title, link, fb_id) VALUES (?, ?, ?)';
     const postFbId = getPostIdFromUrl(post.link);
     const values = [post.content, post.link, postFbId];
-    console.log(values);
 
     const [res] = await this.dbConnection.query<mysql.OkPacket>(query, values);
     const postDatabaseId = res.insertId;

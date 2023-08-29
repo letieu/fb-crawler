@@ -1,32 +1,47 @@
-import { PostCommentCrawler } from "./crawlers/post-comments-crawler";
-import { authenticator } from 'otplib';
 import 'dotenv/config';
-import { get2fa } from "./crawlers/helper";
-import { PostIdsCrawler } from "./crawlers/post-ids-crawler";
+import Database from "./database/database";
+import { getDbConfig } from "./database/helper";
+import { groupPostIdsQueue } from './queues/group-post-ids';
+import { Step } from './workers/group-post-ids';
+import { postCommentsQueue } from './queues/post-comments';
 
 async function test() {
-  // const crawler = new PostCommentCrawler(
-  //   "https://www.facebook.com/BaTamShowbiz.vn/posts/632739385624894",
-  //   {
-  //     username: "100082164458134",
-  //     password: "123@Xuanzhi",
-  //     secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
-  //   }
-  // );
+  const account = {
+    username: "100082164458134",
+    password: "123@Xuanzhi",
+    secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
+  }
 
-  const crawler = new PostIdsCrawler(
-    "mebimsuachiasemeonuoicon",
+  await groupPostIdsQueue.drain();
+  await postCommentsQueue.drain();
+
+  await groupPostIdsQueue.addBulk([
     {
-      username: "100082164458134",
-      password: "123@Xuanzhi",
-      secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
-    }
-  );
+      name: 'canthoanuong',
+      data: {
+        account: account,
+        groupId: 'canthoanuong',
+        step: Step.GET_POST_IDS
+      },
+      opts: {
+        delay: 3000
+      },
+    },
+    {
+      name: '817474248860972eld',
+      data: {
+        groupId: '817474248860972eld',
+        account: account,
+        step: Step.GET_POST_IDS
+      },
 
-  const result = await crawler.start();
-  console.log(result);
+      opts: {
+        delay: 3000
+      },
+    }
+  ]);
+
+  console.log('done');
 }
 
 test().catch(console.error);
-
-// console.log(get2fa("R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"));
