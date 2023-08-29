@@ -138,5 +138,30 @@ export function delayRandomTime(from = 500, to = 1000) {
 }
 
 export function getPostLinkFromPostId(groupId, postId) {
-  return `https://www.facebook.com/groups/${groupId}/permalink/${postId}/`;
+  return `https://www.facebook.com/groups/${groupId}/posts/${postId}/`;
+}
+
+export function getGroupIdFromUrl(groupUrl) {
+  const matches = groupUrl.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i);
+  if (matches) {
+    return matches[1];
+  }
+  return null;
+}
+
+export function getPostIdFromUrl(postUrl) {
+  const matches = postUrl.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/[\w\-]+\/posts\/([\w\-]+)/i);
+  if (matches) {
+    return matches[1];
+  }
+  return null;
+}
+
+export async function close(browser: Browser) {
+  if (process.env.DEBUG === 'true') {
+    // do not close browser
+    return;
+  }
+  await delayRandomTime(1000, 6000);
+  await browser.close();
 }

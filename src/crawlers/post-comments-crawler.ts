@@ -3,13 +3,20 @@ import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
 import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
 
+// crawl post comments and post content
 export class PostCommentCrawler {
   url: string;
   account: Account;
 
+  limit = 20;
+
   constructor(url: string, account: Account) {
     this.url = url;
     this.account = account;
+  }
+
+  setLimit(limit: number) {
+    this.limit = limit;
   }
 
   async start() {
@@ -22,9 +29,10 @@ export class PostCommentCrawler {
 
       const loginSuccess = await ensureLogin(page, this.account); // TODO: mark profileId as invalid if login fail
       const post = await this.getPostContent(page);
-      const comments = await this.getComments(page, 20);
-      
+      const comments = await this.getComments(page);
+
       return {
+        link: this.url,
         content: post.content,
         userId: post.uid,
         comments
@@ -32,11 +40,12 @@ export class PostCommentCrawler {
     } catch (error) {
       console.error(error);
     } finally {
-      // await browser.close();
+      await delayRandomTime(1000, 6000);
+      await browser.close();
     }
   }
 
-  async getComments(page: Page, limit = 1000) {
+  async getComments(page: Page) {
     const allComments = [];
 
     while (true) {
@@ -44,7 +53,7 @@ export class PostCommentCrawler {
 
       allComments.push(...comments);
 
-      if (allComments.length >= limit) {
+      if (allComments.length >= this.limit) {
         break;
       }
 

@@ -2,13 +2,19 @@ import { Page } from 'puppeteer';
 import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId } from './helper';
 import { parsePostIds } from '../parsers/post-ids-parser';
 
+// crawl post ids from group, (not page)
 export class PostIdsCrawler {
   groupId: string;
   account: Account;
+  limit = 20;
 
   constructor(id: string, account: Account) {
     this.groupId = id;
     this.account = account;
+  }
+
+  setLimit(limit: number) {
+    this.limit = limit;
   }
 
   async start() {
@@ -27,11 +33,12 @@ export class PostIdsCrawler {
     } catch (error) {
       console.error(error);
     } finally {
-      // await browser.close();
+      await delayRandomTime(1000, 6000);
+      await browser.close();
     }
   }
 
-  async getPostIds(page: Page, limit = 20) {
+  async getPostIds(page: Page) {
     const allPostIds = [];
 
     while (true) {
@@ -39,7 +46,7 @@ export class PostIdsCrawler {
 
       allPostIds.push(...postIds);
 
-      if (allPostIds.length >= limit) {
+      if (allPostIds.length >= this.limit) {
         break;
       }
 

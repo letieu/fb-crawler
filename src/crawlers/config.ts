@@ -28,5 +28,5 @@ export default {
   login_button_name: "log in",
   public_post_exclude_keyword: "see all public posts for",
 
-  create_post_button: 'input[value="Post"]',
+  create_post_button: 'input[type="submit"][name="view_post"]',
 };

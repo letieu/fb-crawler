@@ -1,34 +1,39 @@
-import { PostCommentCrawler } from '../crawlers/post-comments-crawler';
 import Queue from 'bull';
 import Database from '../database/database';
 import { Account } from '../crawlers/helper';
+import { PostIdsCrawler } from '../crawlers/post-ids-crawler';
 import { buildRedisConfig } from './helper';
+import { PostCommentsQueue } from './post-comments';
 
-type CrawCommentlJob = {
-  postUrl: string;
+type CrawPostIdslJob = {
+  groupId: string;
   account: Account;
 }
 
-export class PostCommentsQueue {
-  queue: Queue.Queue<CrawCommentlJob>;
+export class GroupPostIdsQueue {
+  queue: Queue.Queue<CrawPostIdslJob>;
   db: Database;
+  commentQueue: PostCommentsQueue;
 
-  async init(db: Database, limit: number = 100) {
+  async init(db: Database, commentQueue: PostCommentsQueue, limit: number = 100) {
     const redisUrl = buildRedisConfig();
-    this.queue = new Queue('comment', redisUrl);
+    this.queue = new Queue('postId', redisUrl);
 
     this.queue.process(async (job) => {
-      const { postUrl, account } = job.data;
-      const crawler = new PostCommentCrawler(postUrl, account);
+      const { groupId, account } = job.data;
+      const crawler = new PostIdsCrawler(groupId, account);
       crawler.setLimit(limit);
 
       const result = await crawler.start();
       return result;
     });
 
-    this.queue.on('completed', (job, result) => {
+    this.queue.on('completed', async (job, result) => {
       if (result) {
-        db.savePost(result);
+        console.log(`Crawled ${result.length} post ids`);
+        for await (const postUrl of result) {
+          await commentQueue.addCrawlJob(job.data.account, postUrl);
+        }
       }
     });
 
@@ -49,16 +54,17 @@ export class PostCommentsQueue {
     });
 
     this.db = db;
+    this.commentQueue = commentQueue;
 
-    console.log('Post comments queue started');
+    console.log('Group post ids queue started');
   }
 
-  async addCrawlJob(account: Account, url: string) {
-    await this.queue.add({ postUrl: url, account }, {
+  async addCrawlJob(account: Account, id: string) {
+    await this.queue.add({ groupId: id, account }, {
       delay: 5 * 1000, // delay 5 seconds
     });
 
-    console.log(`Added job to crawl post ${url} \n`);
+    console.log(`Added job to crawl group ${id} \n`);
   }
 
   async removeCrawlJob(jobId: string) {
@@ -76,4 +82,5 @@ export class PostCommentsQueue {
   async removeAllJobs() {
     await this.queue.empty();
   }
+
 }

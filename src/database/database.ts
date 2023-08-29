@@ -1,0 +1,109 @@
+import * as mysql from 'mysql2/promise';
+import { Account, getPostIdFromUrl } from '../crawlers/helper';
+import { RowDataPacket } from 'mysql2/promise';
+
+type Comment = {
+  commentId: string;
+  name: string;
+  phone: string;
+  uid: string;
+  comment: string;
+}
+
+type Post = {
+  content: string;
+  link: string;
+  comments: Comment[];
+}
+
+class Database {
+  private dbConnection: mysql.Connection;
+
+  constructor(private dbConfig: mysql.ConnectionOptions) { }
+
+  async init() {
+    this.dbConnection = await mysql.createConnection(this.dbConfig);
+    await this.dbConnection.connect();
+
+    console.log('Database initialized');
+  }
+
+  async savePost(post: Post) {
+    const query = 'REPLACE INTO posts (title, link, fb_id) VALUES (?, ?, ?)';
+    const postFbId = getPostIdFromUrl(post.link);
+    const values = [post.content, post.link, postFbId];
+    console.log(values);
+
+    const [res] = await this.dbConnection.query<mysql.OkPacket>(query, values);
+    const postDatabaseId = res.insertId;
+
+    console.log(`Inserted post ${postDatabaseId}`);
+
+    await this.saveComments(postDatabaseId, post.comments);
+  }
+
+  async saveComments(postId: number, comments: Comment[]) {
+    if (comments.length === 0) {
+      console.log('No comments to insert.');
+      return;
+    }
+
+    const values = [];
+    const placeholders = [];
+
+    for (const comment of comments) {
+      placeholders.push('(?, ?, ?, ?, ?)');
+      values.push(comment.commentId, comment.name, comment.uid, comment.comment, postId);
+    }
+
+    const placeholdersString = placeholders.join(', ');
+
+    const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id) VALUES ${placeholdersString}`;
+
+    try {
+      const [rows, fields] = await this.dbConnection.query(query, values);
+      console.log(`Inserted ${comments.length} comments`);
+    } catch (error) {
+      console.error('Error inserting comments:', error);
+    }
+  }
+
+  async getPosts() {
+    // get all post status = 1
+    const query = 'SELECT * FROM posts WHERE status = 1';
+    const [rows, fields] = await this.dbConnection.query(query);
+    return rows;
+  }
+
+  async getGroups() {
+    const query = 'SELECT * FROM group_page WHERE status = 1';
+    const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
+    return rows;
+  }
+
+  async getPost(postId: string) {
+    const query = 'SELECT * FROM posts WHERE id = ?';
+    const [rows, fields] = await this.dbConnection.query(query, [postId]);
+    return rows[0];
+  }
+
+  async getAccounts(): Promise<Account[]> {
+    const query = 'SELECT * FROM account WHERE status = 1';
+
+    const [rows, fields] = await this.dbConnection.query(query);
+
+    return (rows as any).map((row) => {
+      return {
+        username: row.username,
+        password: row.password,
+        secretCode: row.two_fa,
+      };
+    });
+  }
+
+  async close() {
+    await this.dbConnection.end();
+  }
+}
+
+export default Database;
