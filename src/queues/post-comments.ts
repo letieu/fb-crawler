@@ -1,49 +1,50 @@
-import { PostCrawler } from './crawler';
+import { PostCommentCrawler } from '../crawlers/post-comments-crawler';
 import Queue from 'bull';
-import Database from './database';
+import Database from '../database';
 
 type CrawlJob = {
-  url: string;
+  postUrl: string;
   postId: number;
+  profileId?: number;
 }
 
-export class CrawlerQueue {
-  crawlQueue: Queue.Queue<CrawlJob>;
+export class PostCommentsQueue {
+  queue: Queue.Queue<CrawlJob>;
   db: Database;
 
   async init(db: Database) {
     const redisUrl = this.buildRedisConfig();
-    this.crawlQueue = new Queue('crawlPost', redisUrl);
+    this.queue = new Queue('comment', redisUrl);
 
-    this.crawlQueue.process(async (job) => {
-      const { url } = job.data;
-      const crawler = new PostCrawler(url, {
-        headless: process.env.HEADLESS === 'true'
+    this.queue.process(async (job) => {
+      const { postUrl, profileId } = job.data;
+      const crawler = new PostCommentCrawler(postUrl, {
+        profileId
       });
       const result = await crawler.start();
       return result;
     });
 
-    this.crawlQueue.on('completed', (job, result) => {
+    this.queue.on('completed', (job, result) => {
       const { postId } = job.data;
       if (result) {
         db.savePost(postId, result);
       }
     });
 
-    this.crawlQueue.on('failed', (job, err) => {
+    this.queue.on('failed', (job, err) => {
       console.log(`Job ${job.id} failed with error ${err}`);
     });
 
-    this.crawlQueue.on('error', (err) => {
+    this.queue.on('error', (err) => {
       console.log(`Queue error ${err}`);
     });
 
-    this.crawlQueue.on('waiting', (jobId) => {
+    this.queue.on('waiting', (jobId) => {
       console.log(`Job ${jobId} waiting`);
     });
 
-    this.crawlQueue.on('active', (job) => {
+    this.queue.on('active', (job) => {
       console.log(`Job ${job.id} active`);
     });
 
@@ -51,7 +52,7 @@ export class CrawlerQueue {
   }
 
   async addCrawlJob(postId: number, url: string, interval: number = 0) {
-    await this.crawlQueue.add({ url, postId }, {
+    await this.queue.add({ postUrl: url, postId }, {
       repeat: {
         every: interval * 1000 * 60,
         limit: 20
@@ -64,12 +65,12 @@ export class CrawlerQueue {
   }
 
   async removeCrawlJob(jobId: string) {
-    await this.crawlQueue.removeRepeatableByKey(jobId);
+    await this.queue.removeRepeatableByKey(jobId);
     console.log(`Removed job ${jobId} \n`);
   }
 
   async getCrawlJobs() {
-    const res = await this.crawlQueue.getRepeatableJobs();
+    const res = await this.queue.getRepeatableJobs();
     return res.map(job => ({
       id: job.key,
     }));

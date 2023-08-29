@@ -41,7 +41,7 @@ export const parseComments = () => {
   }
 
   const commentNodes = document.querySelectorAll(
-    "#m_story_permalink_view > div[id^=ufi_] > div > div:not([id]) > div:not([id^=see_])"
+    "#m_story_permalink_view > div[id^=ufi_] > div  div[id^=comment_list] > div:not([id^=see_])"
   );
 
   const comments = Array.from(commentNodes).map((commentNode) => {

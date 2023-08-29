@@ -1,9 +1,13 @@
 export default {
   response_timeout: 10000,
-  base_url: "https://www.facebook.com/",
+  base_url: "https://mbasic.facebook.com/",
   username_field: 'input[name="email"]',
   password_field: 'input[name="pass"]',
-  login_button: 'button[type="submit"]',
+  login_button: 'input[type="submit"]',
+
+  code_field: 'input[name="approvals_code"]',
+  confirm_code_button: 'input[type="submit"]',
+
   username_invalid_msg:
     "The email address or mobile number you entered isn't connected to an account.",
   password_invalid_msg: "The password that you've entered is incorrect",
@@ -22,5 +26,7 @@ export default {
   close_button_selector: "div[aria-label='Close']",
   seven_days_timestamp: 7 * 24 * 60 * 60 * 1000,
   login_button_name: "log in",
-  public_post_exclude_keyword: "see all public posts for"
+  public_post_exclude_keyword: "see all public posts for",
+
+  create_post_button: 'input[value="Post"]',
 };

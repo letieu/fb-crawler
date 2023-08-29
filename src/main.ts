@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import { ExpressAdapter } from '@bull-board/express';
-import { CrawlerQueue } from './queue';
+import { PostCommentsQueue } from './queues/post-comments';
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import swaggerUi from 'swagger-ui-express';
@@ -22,7 +22,7 @@ const dbConfig: ConnectionOptions = {
   database: process.env.MYSQL_DATABASE,
 };
 
-const queue = new CrawlerQueue();
+const queue = new PostCommentsQueue();
 const db = new Database(dbConfig);
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/queues');
@@ -34,7 +34,7 @@ async function main() {
   await queue.reloadQueue();
 
   const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
-    queues: [new BullAdapter(queue.crawlQueue)],
+    queues: [new BullAdapter(queue.queue)],
     serverAdapter: serverAdapter,
   });
 

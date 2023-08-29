@@ -26,6 +26,7 @@
     "mysql2": "^3.6.0",
     "node-schedule": "^2.1.1",
     "npm": "^9.8.1",
+    "otplib": "^12.0.1",
     "puppeteer": "^21.1.0",
     "puppeteer-cluster": "^0.23.0",
     "swagger-ui-express": "^5.0.0",
