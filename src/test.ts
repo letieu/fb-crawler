@@ -10,9 +10,9 @@ export async function test() {
   await new Promise(resolve => setTimeout(resolve, 5000));
 
   const account = {
-    username: "100082164458134",
+    username: "100056661579667",
     password: "123@Xuanzhi",
-    secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
+    secretCode: "NXGAKLIBS3ANBGQBKAZOAQZLPFFKG44D"
   }
 
   // await groupPostIdsQueue.drain();
@@ -21,7 +21,7 @@ export async function test() {
 
   const crawler = new PostIdsCrawler("817474248860972eld", account);
   // const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", account);
-  crawler.setLimit(100);
+  crawler.setLimit(30);
 
   const postIds = await crawler.start();
   console.log(postIds);

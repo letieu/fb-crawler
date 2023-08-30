@@ -69,22 +69,29 @@ export async function loginFacebook(page: Page, account: Account) {
     return;
   }
 
-  if (page.url().includes("checkpoint")) {
-    console.log('Need 2FA code');
-    const code = get2fa(account.secretCode);
-    console.log(`2FA code: ${code}`);
-    await page.type(config.code_field, code, { delay: 50 });
-    page.click(config.confirm_code_button);
+  if (page.url().includes("checkpoint") && !page.url().includes("login/checkpoint")) {
+    // if hoave config.code_field => 2fa
+    const codeField = await page.$(config.code_field);
 
-    await page.waitForNavigation({ waitUntil: "networkidle2" });
-    await delayRandomTime(1000, 1500);
+    if (codeField) {
+      console.log('Need 2FA code');
+      const code = get2fa(account.secretCode);
 
-    if (page.url().includes("login/checkpoint")) {
+      await page.type(config.code_field, code, { delay: 50 });
       page.click(config.confirm_code_button);
 
       await page.waitForNavigation({ waitUntil: "networkidle2" });
       await delayRandomTime(1000, 1500);
+    } else {
+      throw new Error('Need 2FA code but not found code field');
     }
+  }
+
+  if (page.url().includes("login/checkpoint")) {
+    page.click(config.confirm_code_button);
+
+    await page.waitForNavigation({ waitUntil: "networkidle2" });
+    await delayRandomTime(1000, 1500);
   }
 
   console.log(`Login success with account ${account.username}`);

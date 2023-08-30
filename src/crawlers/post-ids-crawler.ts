@@ -52,6 +52,7 @@ export class PostIdsCrawler {
       const postIds = await page.evaluate(parsePostIds);
 
       allPostIds.push(...postIds);
+      console.log("postIds.length", postIds.length);
 
       if (allPostIds.length >= this.limit) {
         break;
@@ -67,10 +68,10 @@ export class PostIdsCrawler {
           window.scrollTo(0, document.body.scrollHeight);
         });
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        await loadMoreLink.click();
-        await page.waitForNavigation({ waitUntil: "networkidle2" });
+        console.log("click load more wait for navigation");
+        await page.goto(loadMoreLink, { waitUntil: "networkidle2" });
+        console.log("after wait for navigation");
+        await delayRandomTime(1000, 2000);
       }
       else {
         break;
@@ -81,15 +82,18 @@ export class PostIdsCrawler {
   }
 
   async getLoadMoreLink(page: Page) {
-    let loadMoreSelector = "#m_more_item > a";
-    let loadMoreLink = await page.$(loadMoreSelector);
+    const loadMoreLink = await page.evaluate(() => {
+      const loadMoreSelector1 = "#m_more_item > a";
+      const loadMoreSelector2 = "#m_group_stories_container > div > a:has(span)";
 
-    if (loadMoreLink) {
-      return loadMoreLink;
-    }
+      let link = document.querySelector(loadMoreSelector1) as HTMLAnchorElement;
 
-    loadMoreSelector = "#m_group_stories_container > div > a:has(span)";
-    loadMoreLink = await page.$(loadMoreSelector);
+      if (!link) {
+        link = document.querySelector(loadMoreSelector2) as HTMLAnchorElement;
+      }
+
+      return link?.href;
+    });
 
     return loadMoreLink;
   }

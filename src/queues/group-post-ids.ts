@@ -36,7 +36,8 @@ export async function triggerCrawlPostIds() {
       groupId: getGroupIdFromUrl(group.link),
     },
     opts: {
-      delay: 1000 * 30,
+      delay: 1000 * 3,
+      timeout: 1000 * 60 * 50, // 50 minutes
     },
   })));
 

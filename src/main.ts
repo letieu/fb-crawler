@@ -17,7 +17,7 @@ async function main() {
   const crawlIdCron = process.env.CRAWL_POST_IDS_CRON || '* 0 */8 * * *';
   const crawlCommentCron = process.env.CRAWL_POST_COMMENTS_CRON || '* 0 */8 * * *';
 
-  schedule.scheduleJob(crawlIdCron, triggerCrawlPostIds);
+  // schedule.scheduleJob(crawlIdCron, triggerCrawlPostIds);
   // schedule.scheduleJob(crawlCommentCron, triggerCrawlComments);
 }
 
