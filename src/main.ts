@@ -7,8 +7,8 @@ import schedule from 'node-schedule';
 
 async function main() {
   // trigger first time
-  await triggerCrawlComments();
-  await startPostCommentWorker();
+  // await triggerCrawlComments();
+  // await startPostCommentWorker();
 
   await triggerCrawlPostIds();
   await startPostIdWorker();
@@ -18,7 +18,7 @@ async function main() {
   const crawlCommentCron = process.env.CRAWL_POST_COMMENTS_CRON || '* 0 */8 * * *';
 
   schedule.scheduleJob(crawlIdCron, triggerCrawlPostIds);
-  schedule.scheduleJob(crawlCommentCron, triggerCrawlComments);
+  // schedule.scheduleJob(crawlCommentCron, triggerCrawlComments);
 }
 
 main();
