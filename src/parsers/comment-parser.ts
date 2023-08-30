@@ -44,6 +44,8 @@ export const parseComments = () => {
     "#m_story_permalink_view > div[id^=ufi_] > div  div[id^=comment_list] > div:not([id^=see_])"
   );
 
+  console.log('commentNodes', commentNodes);
+
   const comments = Array.from(commentNodes).map((commentNode) => {
     const comment = {
       commentId: commentNode.id,

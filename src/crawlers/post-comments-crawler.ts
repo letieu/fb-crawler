@@ -31,8 +31,14 @@ export class PostCommentCrawler {
       const url = convertToPostLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
 
+      console.log('on post page');
+      await delayRandomTime(1000, 1500);
+
       const post = await this.getPostContent(page);
+      console.log('post', post);
+
       const comments = await this.getComments(page);
+      console.log('comments', comments);
 
       res = {
         link: this.url,
@@ -42,7 +48,7 @@ export class PostCommentCrawler {
       }
     } catch (error) {
     } finally {
-      await browser.close();
+      // await browser.close();
     }
 
     return res;
@@ -53,6 +59,7 @@ export class PostCommentCrawler {
 
     while (true) {
       const comments = await page.evaluate(parseComments);
+      console.log('comments on getCmt', comments);
 
       allComments.push(...comments);
 

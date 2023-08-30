@@ -31,6 +31,7 @@ export async function startPostComments() {
       crawler.setLimit(limit);
 
       const result = await crawler.start();
+      console.log(result);
       return result;
     },
 

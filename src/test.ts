@@ -19,7 +19,7 @@ export async function test() {
 
   // const crawler = new PostIdsCrawler("817474248860972eld", account);
   const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1375219903086401/", account);
-  crawler.setLimit(20);
+  crawler.setLimit(50);
 
   const postIds = await crawler.start();
   console.log(postIds);
