@@ -1,10 +1,11 @@
 import 'dotenv/config';
-import { QueueEvents, WaitingChildrenError, Worker } from 'bullmq';
+import { Worker } from 'bullmq';
 import { PostIdsCrawler } from '../crawlers/post-ids-crawler';
 import { QueueName, getRedisConnection } from './helper';
 import { Account } from '../crawlers/helper';
-import { postCommentsQueue } from '../queues/post-comments';
 import { checkAccount } from '../account-check';
+import Database from '../database/database';
+import { getDbConfig } from '../database/helper';
 
 const limit = parseInt(process.env.POST_IDS_LIMIT || '20');
 
@@ -13,15 +14,14 @@ export type CrawPostIdslJob = {
   account: Account;
 }
 
-const queueEvents = new QueueEvents(QueueName.POST_COMMENTS, {
-  connection: getRedisConnection(),
-});
+export async function startPostIdWorker() {
+  const db = new Database(getDbConfig());
+  await db.init();
 
-export async function startGroupPostIds() {
   const worker = new Worker<CrawPostIdslJob, any>(
     QueueName.GROUP_POST_IDS,
 
-    async (job, token) => {
+    async (job) => {
       const { groupId, account } = job.data;
 
       console.log(`Start crawling post ids for group ${groupId} \n`);
@@ -30,36 +30,8 @@ export async function startGroupPostIds() {
       crawler.setLimit(limit);
 
       const postLinks = await crawler.start();
-
       if (!postLinks) {
-        throw new Error('Cannot crawl post ids');
-      }
-
-      console.log(`Crawled ${postLinks.length} post ids`);
-
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-
-      const childJobs = await postCommentsQueue.addBulk(
-        postLinks
-          .filter((link) => link)
-          .map((link) => ({
-            name: link,
-            data: {
-              account: account,
-              postUrl: link,
-            },
-          }))
-      );
-
-      // wait for all child jobs to complete
-      try {
-        await Promise.all(childJobs.map((job) => job.waitUntilFinished(queueEvents)));
-      } catch (err) {
-        if (err instanceof WaitingChildrenError) {
-          console.log('Waiting for child jobs to complete');
-        } else {
-          throw err;
-        }
+        throw new Error('No post links found');
       }
 
       return postLinks;
@@ -76,13 +48,13 @@ export async function startGroupPostIds() {
 
     if (result) {
       console.log(`Crawled ${result.length} post ids`);
+      await db.savePostLinks(result)
     }
   });
 
   worker.on('failed', (job, err) => {
     const account = job.data.account;
 
-    console.log(`Job ${job.id} failed with error: \n`);
     console.error(err);
 
     checkAccount(account);

@@ -15,7 +15,7 @@ export type CrawCommentlJob = {
   account: Account;
 }
 
-export async function startPostComments() {
+export async function startPostCommentWorker() {
   const db = new Database(getDbConfig());
   await db.init();
 
@@ -31,7 +31,11 @@ export async function startPostComments() {
       crawler.setLimit(limit);
 
       const result = await crawler.start();
-      console.log(result);
+
+      if (!result) {
+        throw new Error('No post comments found');
+      }
+
       return result;
     },
 
@@ -43,7 +47,10 @@ export async function startPostComments() {
 
   worker.on('completed', async (job) => {
     const result = job.returnvalue;
-    console.log(`Crawled post comments for ${job.data.postUrl} \n`);
+    if (!result) {
+      console.log('No post data found');
+      return;
+    }
     await db.savePost(result);
   });
 

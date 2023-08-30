@@ -8,12 +8,14 @@ export type Account = {
   secretCode: string;
 }
 
-export async function initPuppeter(account?: Account) {
+export async function initPuppeter(account?: Account, prefix: string = '') {
   let browser: Browser;
   let page: Page;
 
+  const profileName = `${prefix}_${account.username}`;
+
   if (process.env.BROWSER_ENDPOINT) {
-    console.log('Use browser endpoint', getBrowserEndpoint(account.username));
+    console.log('Use browser endpoint', getBrowserEndpoint(profileName));
 
     browser = await puppeteer.connect({
       browserWSEndpoint: getBrowserEndpoint(account.username)
@@ -23,7 +25,7 @@ export async function initPuppeter(account?: Account) {
     browser = await puppeteer.launch({
       headless: false,
       args: ["--no-sandbox", "--disable-gpu"],
-      userDataDir: `./profile/${account.username}`,
+      userDataDir: `./profiles/${profileName}`,
       devtools: false,
     });
   }

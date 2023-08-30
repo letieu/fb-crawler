@@ -46,9 +46,35 @@ class Database {
     const [res] = await this.dbConnection.query<mysql.OkPacket>(query, values);
     const postDatabaseId = res.insertId;
 
-    console.log(`Inserted post ${postDatabaseId}`);
+    console.log(`Updated post ${postDatabaseId}`);
 
     await this.saveComments(postDatabaseId, post.comments);
+  }
+
+  async savePostLinks(postLinks: string[]) {
+    if (postLinks.length === 0) {
+      console.log('No post links to insert.');
+      return;
+    }
+
+    const values = [];
+    const placeholders = [];
+
+    for (const link of postLinks) {
+      placeholders.push('(?, ?)');
+      values.push(link, getPostIdFromUrl(link));
+    }
+
+    const placeholdersString = placeholders.join(', ');
+
+    const query = `REPLACE INTO posts (link, fb_id) VALUES ${placeholdersString}`;
+
+    try {
+      const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query, values);
+      console.log(`Inserted ${postLinks.length} post links`);
+    } catch (error) {
+      console.error('Error inserting post:', error);
+    }
   }
 
   async saveComments(postId: number, comments: Comment[]) {
@@ -80,7 +106,7 @@ class Database {
   async getPosts() {
     // get all post status = 1
     const query = 'SELECT * FROM posts WHERE status = 1';
-    const [rows, fields] = await this.dbConnection.query(query);
+    const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
     return rows;
   }
 

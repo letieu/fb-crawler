@@ -41,7 +41,7 @@ export const parseComments = () => {
   }
 
   const commentNodes = document.querySelectorAll(
-    "#m_story_permalink_view > div[id^=ufi_] > div  div[id^=comment_list] > div:not([id^=see_])"
+    "#m_story_permalink_view > div[id^=ufi_] > div > div:has(span[id^=like_]) > div:not([id^=see_])"
   );
 
   console.log('commentNodes', commentNodes);

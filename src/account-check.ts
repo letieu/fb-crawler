@@ -2,9 +2,10 @@ import { Account } from "./crawlers/helper";
 import Database, { AccountStatus } from "./database/database";
 import { getDbConfig } from "./database/helper";
 
-const failLimit = 3;
+const failLimit = 5; // fail 5 times then mark account as inactive
 
 const accountFailCount = new Map<string, number>();
+export const accountPool = [];
 
 export async function checkAccount(account: Account) {
   const currentFailCount = accountFailCount.get(account.username) || 0;
@@ -20,5 +21,22 @@ export async function checkAccount(account: Account) {
     console.log(`Account ${account.username} marked as inactive`);
 
     await db.close();
+
+    const index = accountPool.findIndex((acc) => acc.username === account.username);
+
+    if (index > -1) {
+      accountPool.splice(index, 1);
+      console.log(`Account ${account.username} removed from pool`);
+    }
   }
+}
+
+export async function initAccountPool(db: Database) {
+  const accounts = await db.getAccounts();
+  accountPool.push(...accounts);
+}
+
+export function getRandomAccount() {
+  const index = Math.floor(Math.random() * accountPool.length);
+  return accountPool[index];
 }
