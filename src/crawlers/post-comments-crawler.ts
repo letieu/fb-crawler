@@ -90,7 +90,7 @@ export class PostCommentCrawler {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        await loadMoreLink.click();
+        await page.click(loadMoreSelector);
         await page.waitForNavigation({ waitUntil: "networkidle2" });
       }
       else {
