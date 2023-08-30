@@ -36,6 +36,6 @@ COPY --chown=node:node --from=build /usr/src/app/.env ./.env
 COPY --chown=node:node --from=build /usr/src/app/swagger.yaml ./swagger.yaml
 
 # Start the server using the production build
-# CMD [ "node", "dist/main.js" ]
-CMD [ "node", "dist/test.js" ]
+CMD [ "node", "dist/main.js" ]
+# CMD [ "node", "dist/test.js" ]
 EXPOSE 3001
