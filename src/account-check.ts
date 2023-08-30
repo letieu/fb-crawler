@@ -22,12 +22,12 @@ export async function checkAccount(account: Account) {
 
     await db.close();
 
-    const index = accountPool.findIndex((acc) => acc.username === account.username);
+    // const index = accountPool.findIndex((acc) => acc.username === account.username);
 
-    if (index > -1) {
-      accountPool.splice(index, 1);
-      console.log(`Account ${account.username} removed from pool`);
-    }
+    // if (index > -1) {
+    //   accountPool.splice(index, 1);
+    //   console.log(`Account ${account.username} removed from pool`);
+    // }
   }
 }
 
