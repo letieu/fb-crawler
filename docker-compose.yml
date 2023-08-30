@@ -30,6 +30,8 @@ services:
       - fb-crawler-network
     ports:
       - "3111:3000"
+    environment:
+      - CONNECTION_TIMEOUT=-1
     # volumes:
       # - ./data/chrome/profiles:/home/blessuser/profiles
 
