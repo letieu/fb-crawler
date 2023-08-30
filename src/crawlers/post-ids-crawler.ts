@@ -53,23 +53,14 @@ export class PostIdsCrawler {
         break;
       }
 
-      const loadMoreSelector = "#m_more_item > a";
-      const loadMoreLink = await page.$(loadMoreSelector);
+      const loadMoreLink = await this.getLoadMoreLink(page);
 
       if (loadMoreLink) {
         await delayRandomTime(1000, 6000);
 
-        // scroll to load more
+        // scroll to bottom
         await page.evaluate(() => {
-          const element = document.querySelector("#m_more_item");
-
-          if (element) {
-            element.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-              inline: "nearest",
-            });
-          }
+          window.scrollTo(0, document.body.scrollHeight);
         });
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -83,5 +74,19 @@ export class PostIdsCrawler {
     }
 
     return allPostIds.map((id) => getPostLinkFromPostId(this.groupId, id));
+  }
+
+  async getLoadMoreLink(page: Page) {
+    let loadMoreSelector = "#m_more_item > a";
+    let loadMoreLink = await page.$(loadMoreSelector);
+
+    if (loadMoreLink) {
+      return loadMoreLink;
+    }
+
+    loadMoreSelector = "#m_group_stories_container > div > a:has(span)";
+    loadMoreLink = await page.$(loadMoreSelector);
+
+    return loadMoreLink;
   }
 }

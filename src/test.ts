@@ -19,17 +19,12 @@ export async function test() {
   // await postCommentsQueue.drain();
 
 
-  // const crawler = new PostIdsCrawler("canthoanuong", account);
-  // // const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", account);
-  // crawler.setLimit(100);
-  //
-  // const postIds = await crawler.start();
-  // console.log(postIds);
-  //
-  const { page, browser } = await initPuppeter(account);
+  const crawler = new PostIdsCrawler("817474248860972eld", account);
+  // const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", account);
+  crawler.setLimit(100);
 
-  await loginFacebook(page, account);
-  await page.goto("https://mbasic.facebook.com/groups/canthoanuong/", { waitUntil: "networkidle2" });
+  const postIds = await crawler.start();
+  console.log(postIds);
 }
 
 test().catch(console.error);
