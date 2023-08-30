@@ -5,6 +5,11 @@ import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostCommentCrawler } from './crawlers/post-comments-crawler';
 
 export async function test() {
+  const account = {
+    username: "",
+    password: "",
+    secretCode: ""
+  }
 
   await groupPostIdsQueue.drain();
   await postCommentsQueue.drain();
