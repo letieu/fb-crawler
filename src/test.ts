@@ -5,6 +5,8 @@ import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostCommentCrawler } from './crawlers/post-comments-crawler';
 
 export async function test() {
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
   const account = {
     username: "100082164458134",
     password: "123@Xuanzhi",
