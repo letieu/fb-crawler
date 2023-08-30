@@ -3,7 +3,7 @@ import { groupPostIdsQueue } from './queues/group-post-ids';
 import { postCommentsQueue } from './queues/post-comments';
 import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostCommentCrawler } from './crawlers/post-comments-crawler';
-import { initPuppeter } from './crawlers/helper';
+import { initPuppeter, loginFacebook } from './crawlers/helper';
 import config from './crawlers/config';
 
 export async function test() {
@@ -28,11 +28,8 @@ export async function test() {
   //
   const { page, browser } = await initPuppeter(account);
 
+  await loginFacebook(page, account);
   await page.goto("https://mbasic.facebook.com/groups/canthoanuong/", { waitUntil: "networkidle2" });
-
-  await page.waitForSelector("#tieuee", {
-    timeout: config.response_timeout,
-  });
 }
 
 test().catch(console.error);
