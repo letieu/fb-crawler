@@ -13,9 +13,10 @@ export async function initPuppeter(account?: Account) {
   let page: Page;
 
   if (process.env.BROWSER_ENDPOINT) {
-    // use headless chrome
+    console.log('Use browser endpoint', getBrowserEndpoint(account.username));
+
     browser = await puppeteer.connect({
-      browserWSEndpoint: process.env.BROWSER_ENDPOINT,
+      browserWSEndpoint: getBrowserEndpoint(account.username)
     });
   }
   else {
@@ -164,4 +165,9 @@ export async function close(browser: Browser) {
   }
   await delayRandomTime(1000, 6000);
   await browser.close();
+}
+
+function getBrowserEndpoint(profileName: string) {
+  const endpoint = process.env.BROWSER_ENDPOINT;
+  return `${endpoint}?--user-data-dir=${profileName}`;
 }

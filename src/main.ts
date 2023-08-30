@@ -4,7 +4,7 @@ import { getDbConfig } from './database/helper';
 import { getGroupIdFromUrl } from './crawlers/helper';
 import { startPostComments } from './workers/post-comments';
 import { startGroupPostIds } from './workers/group-post-ids';
-import { test } from './test';
+import schedule from 'node-schedule';
 import { groupPostIdsQueue } from './queues/group-post-ids';
 import { postCommentsQueue } from './queues/post-comments';
 
@@ -56,4 +56,24 @@ function getRandomAccount(accounts: any[]) {
   return accounts[index];
 }
 
-main().catch(console.error);
+// run main every 8 hours
+schedule.scheduleJob(
+  process.env.CRON_TIME ?? '* 0 */8 * * *',
+  async () => {
+    try {
+      await main();
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
+process.on('SIGINT', function () {
+  schedule.gracefulShutdown()
+    .then(() => process.exit(0))
+});
+
+console.log(`Schedule: ${process.env.CRON_TIME ?? '* 0 */8 * * *'}`);
+
+main();
+console.log('Crawler started for the first time');
