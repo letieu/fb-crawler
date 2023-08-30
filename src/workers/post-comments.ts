@@ -50,7 +50,8 @@ export async function startPostComments() {
   worker.on('failed', (job, err) => {
     const account = job.data.account;
 
-    console.log(`Job ${job.id} failed with error ${err}`);
+    console.log(`Job ${job.id} failed with error ${err} \n`);
+    console.error(err);
 
     checkAccount(account);
   });
