@@ -6,9 +6,9 @@ import { PostCommentCrawler } from './crawlers/post-comments-crawler';
 
 export async function test() {
   const account = {
-    username: "",
-    password: "",
-    secretCode: ""
+    username: "100082164458134",
+    password: " ",
+    secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
   }
 
   await groupPostIdsQueue.drain();
@@ -16,8 +16,8 @@ export async function test() {
 
 
   // const crawler = new PostIdsCrawler("817474248860972eld", account);
-  const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1375452783063113/", account);
-  crawler.setLimit(10);
+  const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1375219903086401/", account);
+  crawler.setLimit(20);
 
   const postIds = await crawler.start();
   console.log(postIds);

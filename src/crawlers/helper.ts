@@ -171,5 +171,5 @@ export async function close(browser: Browser) {
 
 function getBrowserEndpoint(profileName: string) {
   const endpoint = process.env.BROWSER_ENDPOINT;
-  return `${endpoint}?--user-data-dir=~/${profileName}&trackingId=${profileName}?timeout=300000--window-size=1500,764`;
+  return `${endpoint}?--user-data-dir=~/profiles/${profileName}&trackingId=${profileName}?timeout=300000--window-size=1500,764`;
 }

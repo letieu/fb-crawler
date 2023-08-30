@@ -1,34 +1,38 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mariadb
-    container_name: fb-crawler-mysql
-    env_file:
-      - .env
-    ports:
-      - "${MYSQL_PORT}:${MYSQL_PORT}"
-    volumes:
-      - ./data/mysql_data:/var/lib/mysql
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: fb-crawler-phpmyadmin
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: ${MYSQL_USER}
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "8080:80"
-
   redis:
     image: bitnami/redis:7.0
     container_name: fb-crawler-redis
-    volumes:
-      - ./data/redis:/bitnami/redis/data
+    environment:
+      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
+    networks:
+      - fb-crawler-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fb-crawler-app
     env_file:
       - .env
     ports:
-      - '${REDIS_PORT}:6379'
-    environment:
-      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
+      - "${APP_PORT}:${APP_PORT}"
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+
+  chrome:
+    image: browserless/chrome
+    container_name: fb-crawler-chrome
+    networks:
+      - fb-crawler-network
+    ports:
+      - "3111:3000"
+    volumes:
+      - ./data/chrome/profiles:/home/blessuser/profiles
+
+networks:
+  fb-crawler-network:
+    driver: bridge
