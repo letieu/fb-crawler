@@ -4,8 +4,6 @@ services:
   redis:
     image: bitnami/redis:7.0
     container_name: fb-crawler-redis
-    # volumes:
-    #   - ./data/redis:/bitnami/redis/data
     environment:
       - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
     networks:
@@ -30,6 +28,8 @@ services:
     container_name: fb-crawler-chrome
     networks:
       - fb-crawler-network
+    ports:
+      - "3111:3000"
 
 networks:
   fb-crawler-network:

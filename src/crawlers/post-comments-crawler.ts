@@ -23,31 +23,29 @@ export class PostCommentCrawler {
     console.log(`Start crawling post ${this.url} \n`);
     const { browser, page } = await initPuppeter(this.account);
 
+    let res;
+
     try {
+      await loginFacebook(page, this.account);
+
       const url = convertToPostLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
 
-      await loginFacebook(page, this.account);
       const post = await this.getPostContent(page);
       const comments = await this.getComments(page);
 
-      await delayRandomTime(500, 2000);
-      console.log('browser close');
-      await browser.close();
-
-      return {
+      res = {
         link: this.url,
         content: post.content,
         userId: post.uid,
         comments
       }
     } catch (error) {
-      console.error(error);
     } finally {
-      await delayRandomTime(1000, 6000);
-      console.log('browser close');
       await browser.close();
     }
+
+    return res;
   }
 
   async getComments(page: Page) {

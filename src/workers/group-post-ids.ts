@@ -35,6 +35,10 @@ export async function startGroupPostIds() {
         throw new Error('Cannot crawl post ids');
       }
 
+      console.log(`Crawled ${postLinks.length} post ids`);
+
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       const childJobs = await postCommentsQueue.addBulk(
         postLinks
           .filter((link) => link)

@@ -8,6 +8,7 @@ import { PostCommentCrawler } from '../crawlers/post-comments-crawler';
 import { checkAccount } from '../account-check';
 
 const limit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
+console.log(`Post comments limit: ${limit}`);
 
 export type CrawCommentlJob = {
   postUrl: string;

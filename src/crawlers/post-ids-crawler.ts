@@ -20,6 +20,8 @@ export class PostIdsCrawler {
   async start() {
     const { browser, page } = await initPuppeter(this.account);
 
+    let res;
+
     try {
       await loginFacebook(page, this.account);
 
@@ -28,17 +30,14 @@ export class PostIdsCrawler {
       await page.goto(url, { waitUntil: "networkidle2" });
 
       const postIds = await this.getPostIds(page);
-
-      await delayRandomTime(500, 2000);
-      await browser.close();
-
-      return postIds;
+      res = postIds;
     } catch (error) {
       console.error(error);
     } finally {
-      await delayRandomTime(1000, 6000);
       await browser.close();
     }
+
+    return res;
   }
 
   async getPostIds(page: Page) {

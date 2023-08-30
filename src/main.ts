@@ -33,6 +33,14 @@ async function triggerCrawl() {
   const groups = await db.getGroups();
   const accounts = await db.getAccounts();
 
+  if (!groups.length) {
+    throw new Error('No groups found');
+  }
+
+  if (!accounts.length) {
+    throw new Error('No accounts found');
+  }
+
   await groupPostIdsQueue.drain();
   await postCommentsQueue.drain();
 

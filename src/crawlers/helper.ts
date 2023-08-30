@@ -48,7 +48,7 @@ export async function loginFacebook(page: Page, account: Account) {
 
   const createPostButton = await page.$(config.create_post_button);
   if (createPostButton) {
-    // already login
+    console.log(`Already logged in with account ${account.username}`);
     return;
   }
 
@@ -84,6 +84,8 @@ export async function loginFacebook(page: Page, account: Account) {
       await delayRandomTime(1000, 1500);
     }
   }
+
+  console.log(`Login success with account ${account.username}`);
 }
 
 export async function ensureLogin(page: Page, account: Account) {
@@ -169,5 +171,5 @@ export async function close(browser: Browser) {
 
 function getBrowserEndpoint(profileName: string) {
   const endpoint = process.env.BROWSER_ENDPOINT;
-  return `${endpoint}?--user-data-dir=${profileName}`;
+  return `${endpoint}?--user-data-dir=~/${profileName}&trackingId=${profileName}?timeout=300000--window-size=1500,764`;
 }
