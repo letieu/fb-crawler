@@ -18,7 +18,11 @@ export class PostIdsCrawler {
   }
 
   async start() {
-    const { browser, page } = await initPuppeter(this.account);
+    const { browser, page } = await initPuppeter(
+      this.account,
+      process.env.BROWSER_POST,
+      'post'
+    );
 
     let res;
 

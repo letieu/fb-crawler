@@ -21,7 +21,11 @@ export class PostCommentCrawler {
 
   async start() {
     console.log(`Start crawling post ${this.url} \n`);
-    const { browser, page } = await initPuppeter(this.account, 'comment');
+    const { browser, page } = await initPuppeter(
+      this.account,
+      process.env.BROWSER_COMMENT,
+      'comment',
+    );
 
     let res;
 

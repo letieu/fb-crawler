@@ -8,17 +8,17 @@ export type Account = {
   secretCode: string;
 }
 
-export async function initPuppeter(account?: Account, prefix: string = '') {
+export async function initPuppeter(account?: Account, endpoint: string = '', prefix: string = '') {
   let browser: Browser;
   let page: Page;
 
   const profileName = `${prefix}_${account.username}`;
 
-  if (process.env.BROWSER_ENDPOINT) {
-    console.log('Use browser endpoint', getBrowserEndpoint(profileName));
+  if (endpoint) {
+    console.log('Use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));
 
     browser = await puppeteer.connect({
-      browserWSEndpoint: getBrowserEndpoint(account.username)
+      browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username)
     });
   }
   else {
@@ -171,7 +171,6 @@ export async function close(browser: Browser) {
   await browser.close();
 }
 
-function getBrowserEndpoint(profileName: string) {
-  const endpoint = process.env.BROWSER_ENDPOINT;
-  return `${endpoint}?--user-data-dir=~/profiles/${profileName}&trackingId=${profileName}?--window-size=1500,764`;
+function getBrowserEndpointWithParams(endPoint: string, profileName: string) {
+  return `${endPoint}?--user-data-dir=~/profiles/${profileName}&trackingId=${profileName}?--window-size=1500,764`;
 }
