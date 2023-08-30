@@ -7,7 +7,7 @@ import { PostCommentCrawler } from './crawlers/post-comments-crawler';
 export async function test() {
   const account = {
     username: "100082164458134",
-    password: " ",
+    password: "123@Xuanzhi",
     secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
   }
 
