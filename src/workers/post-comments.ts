@@ -1,10 +1,11 @@
 import 'dotenv/config';
 import { Worker } from 'bullmq';
 import { Account } from "../crawlers/helper";
-import { getRedisConnection } from './helper';
+import { QueueName, getRedisConnection } from './helper';
 import Database from '../database/database';
 import { getDbConfig } from '../database/helper';
 import { PostCommentCrawler } from '../crawlers/post-comments-crawler';
+import { checkAccount } from '../account-check';
 
 const limit = 10; // TODO: update
 
@@ -18,10 +19,12 @@ export async function startPostComments() {
   await db.init();
 
   const worker = new Worker<CrawCommentlJob, any>(
-    "PostComments",
+    QueueName.POST_COMMENTS,
 
-    async (job, token) => {
+    async (job) => {
       const { postUrl, account } = job.data;
+
+      console.log(`Start crawling post cmt ${postUrl} \n`);
 
       const crawler = new PostCommentCrawler(postUrl, account);
       crawler.setLimit(limit);
@@ -38,11 +41,16 @@ export async function startPostComments() {
 
   worker.on('completed', async (job) => {
     const result = job.returnvalue;
+    console.log(`Crawled post comments for ${job.data.postUrl} \n`);
     await db.savePost(result);
   });
 
   worker.on('failed', (job, err) => {
+    const account = job.data.account;
+
     console.log(`Job ${job.id} failed with error ${err}`);
+
+    checkAccount(account);
   });
 
   worker.on('error', (err) => {

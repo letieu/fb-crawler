@@ -1,92 +1,64 @@
 import 'dotenv/config';
-import { WaitingChildrenError, Worker } from 'bullmq';
+import { QueueEvents, WaitingChildrenError, Worker } from 'bullmq';
 import { PostIdsCrawler } from '../crawlers/post-ids-crawler';
-import { getRedisConnection } from './helper';
+import { QueueName, getRedisConnection } from './helper';
 import { Account } from '../crawlers/helper';
 import { postCommentsQueue } from '../queues/post-comments';
+import { checkAccount } from '../account-check';
 
-const limit = 10; // TODO: update
-
-export enum Step {
-  GET_POST_IDS = 'GET_POST_IDS',
-  GET_COMMENTS = 'GET_COMMENTS',
-  FINISH = 'FINISH'
-}
+const limit = 3; // TODO: update
 
 export type CrawPostIdslJob = {
   groupId: string;
   account: Account;
-  step: Step;
 }
+
+const queueEvents = new QueueEvents(QueueName.POST_COMMENTS, {
+  connection: getRedisConnection(),
+});
 
 export async function startGroupPostIds() {
   const worker = new Worker<CrawPostIdslJob, any>(
-    "GroupPostIds",
+    QueueName.GROUP_POST_IDS,
 
     async (job, token) => {
       const { groupId, account } = job.data;
 
-      let step = job.data.step;
+      console.log(`Start crawling post ids for group ${groupId} \n`);
 
-      while (step !== Step.FINISH) {
-        console.log(`Step: ${step}`);
+      const crawler = new PostIdsCrawler(groupId, account);
+      crawler.setLimit(limit);
 
-        switch (step) {
-          case Step.GET_POST_IDS: {
-            const crawler = new PostIdsCrawler(groupId, account);
-            crawler.setLimit(limit);
-            const postLinks = await crawler.start();
+      const postLinks = await crawler.start();
 
-            await postCommentsQueue.addBulk(
-              postLinks.map((postUrl) => ({
-                name: postUrl,
-                data: {
-                  postUrl,
-                  account,
-                },
-                opts: {
-                  parent: {
-                    id: job.id,
-                    queue: job.queueQualifiedName,
-                  },
-                  delay: 3000,
-                },
-              })),
-            );
+      if (!postLinks) {
+        throw new Error('Cannot crawl post ids');
+      }
 
-            await job.updateData({
-              step: Step.GET_COMMENTS,
-              groupId: groupId,
+      const childJobs = await postCommentsQueue.addBulk(
+        postLinks
+          .filter((link) => link)
+          .map((link) => ({
+            name: link,
+            data: {
               account: account,
-            });
-            step = Step.GET_COMMENTS;
-            console.log('change step to GET_COMMENTS');
-            break;
-          }
+              postUrl: link,
+            },
+          }))
+      );
 
-          case Step.GET_COMMENTS: {
-            const shouldWait = await job.moveToWaitingChildren(token);
-            console.log(`shouldWait: ${shouldWait}`);
-            if (!shouldWait) {
-              await job.updateData({
-                step: Step.FINISH,
-                groupId: groupId,
-                account: account,
-              });
-              step = Step.FINISH;
-              console.log('change step to FINISH');
-              return Step.FINISH;
-            } else {
-              throw new WaitingChildrenError();
-            }
-          }
-
-          default: {
-            throw new Error('invalid step');
-          }
+      // wait for all child jobs to complete
+      try {
+        await Promise.all(childJobs.map((job) => job.waitUntilFinished(queueEvents)));
+      } catch (err) {
+        if (err instanceof WaitingChildrenError) {
+          console.log('Waiting for child jobs to complete');
+        } else {
+          throw err;
         }
       }
 
+      return postLinks;
     },
 
     {
@@ -104,7 +76,11 @@ export async function startGroupPostIds() {
   });
 
   worker.on('failed', (job, err) => {
+    const account = job.data.account;
+
     console.log(`Job ${job.id} failed with error ${err}`);
+
+    checkAccount(account);
   });
 
   worker.on('error', (err) => {

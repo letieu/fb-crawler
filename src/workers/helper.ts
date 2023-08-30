@@ -11,3 +11,8 @@ export function getRedisConnection(): ConnectionOptions {
     password: redisPassword
   }
 }
+
+export enum QueueName {
+  GROUP_POST_IDS = 'GroupPostIds',
+  POST_COMMENTS = 'PostComments',
+}

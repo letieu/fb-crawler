@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 import { CrawPostIdslJob } from '../workers/group-post-ids';
-import { getRedisConnection } from '../workers/helper';
+import { QueueName, getRedisConnection } from '../workers/helper';
 
-export const groupPostIdsQueue = new Queue<CrawPostIdslJob>('GroupPostIds', {
+export const groupPostIdsQueue = new Queue<CrawPostIdslJob>(QueueName.GROUP_POST_IDS, {
   connection: getRedisConnection()
 });

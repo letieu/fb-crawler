@@ -4,10 +4,15 @@ import { getDbConfig } from './database/helper';
 import { getGroupIdFromUrl } from './crawlers/helper';
 import { startPostComments } from './workers/post-comments';
 import { startGroupPostIds } from './workers/group-post-ids';
+import { test } from './test';
+import { groupPostIdsQueue } from './queues/group-post-ids';
+import { postCommentsQueue } from './queues/post-comments';
 
 const db = new Database(getDbConfig());
 
 async function main() {
+  await triggerCrawl();
+
   const w1 = await startPostComments();
   const w2 = await startGroupPostIds();
 
@@ -21,20 +26,29 @@ async function main() {
   });
 }
 
+// clean up all jobs in queue and start crawling again
 async function triggerCrawl() {
+  await db.init();
+
   const groups = await db.getGroups();
   const accounts = await db.getAccounts();
 
-  // await groupPostIdsQueue.removeAllJobs();
-  // await postCommentsQueue.removeAllJobs();
+  await groupPostIdsQueue.drain();
+  await postCommentsQueue.drain();
 
-  for await (const group of groups) {
-    const account = getRandomAccount(accounts);
-    const groupId = getGroupIdFromUrl(group.link);
-    console.log(`Crawling group ${groupId} with account ${account.username}`);
+  await groupPostIdsQueue.addBulk(groups.map((group) => ({
+    name: group.link,
+    data: {
+      account: getRandomAccount(accounts),
+      groupId: getGroupIdFromUrl(group.link),
+    },
+    opts: {
+      attempts: 2,
+      delay: 1000 * 20,
+    },
+  })));
 
-    // await groupPostIdsQueue.addCrawlJob(account, groupId);
-  }
+  console.log('All jobs added');
 }
 
 function getRandomAccount(accounts: any[]) {

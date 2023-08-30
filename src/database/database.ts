@@ -16,6 +16,16 @@ type Post = {
   comments: Comment[];
 }
 
+export enum AccountStatus {
+  ACTIVE = 1,
+  INACTIVE = 2,
+}
+
+export enum GroupStatus {
+  ACTIVE = 1,
+  INACTIVE = 2,
+}
+
 class Database {
   private dbConnection: mysql.Connection;
 
@@ -98,6 +108,14 @@ class Database {
         secretCode: row.two_fa,
       };
     });
+  }
+
+  async updateAccountStatus(username: string, status: AccountStatus) {
+    const query = 'UPDATE account SET status = ? WHERE username = ?';
+
+    const [rows, fields] = await this.dbConnection.query(query, [status, username]);
+
+    return rows;
   }
 
   async close() {

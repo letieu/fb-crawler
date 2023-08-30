@@ -18,7 +18,6 @@ export class PostIdsCrawler {
   }
 
   async start() {
-    console.log(`Start crawling group ${this.groupId} \n`);
     const { browser, page } = await initPuppeter(this.account);
 
     try {
@@ -29,6 +28,10 @@ export class PostIdsCrawler {
       await page.goto(url, { waitUntil: "networkidle2" });
 
       const postIds = await this.getPostIds(page);
+
+      await delayRandomTime(500, 2000);
+      await browser.close();
+
       return postIds;
     } catch (error) {
       console.error(error);

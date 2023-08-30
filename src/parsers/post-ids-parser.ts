@@ -1,12 +1,12 @@
 export const parsePostIds = () => {
   const getPostId = (node: Element) => {
-    const reactionElement = node.querySelector("footer > [id^=reactions_]");
+    const reactionElement = node.querySelector("footer [id^=like_]");
 
     if (!reactionElement) {
       return null;
     }
 
-    const id = reactionElement.id.replace("reactions_", "");
+    const id = reactionElement.id.replace("like_", "");
     return id;
   };
 

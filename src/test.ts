@@ -1,47 +1,24 @@
 import 'dotenv/config';
-import Database from "./database/database";
-import { getDbConfig } from "./database/helper";
 import { groupPostIdsQueue } from './queues/group-post-ids';
-import { Step } from './workers/group-post-ids';
 import { postCommentsQueue } from './queues/post-comments';
+import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 
-async function test() {
+export async function test() {
   const account = {
-    username: "100082164458134",
-    password: "123@Xuanzhi",
-    secretCode: "R333PGH6XGFDL34ZFM3Z5YYCZOTEBPZW"
+    username: "xx",
+    password: "xx",
+    secretCode: "xx"
   }
 
   await groupPostIdsQueue.drain();
   await postCommentsQueue.drain();
 
-  await groupPostIdsQueue.addBulk([
-    {
-      name: 'canthoanuong',
-      data: {
-        account: account,
-        groupId: 'canthoanuong',
-        step: Step.GET_POST_IDS
-      },
-      opts: {
-        delay: 3000
-      },
-    },
-    {
-      name: '817474248860972eld',
-      data: {
-        groupId: '817474248860972eld',
-        account: account,
-        step: Step.GET_POST_IDS
-      },
 
-      opts: {
-        delay: 3000
-      },
-    }
-  ]);
+  const crawler = new PostIdsCrawler("817474248860972eld", account);
+  crawler.setLimit(3);
 
-  console.log('done');
+  const postIds = await crawler.start();
+  console.log(postIds);
 }
 
 test().catch(console.error);

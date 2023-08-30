@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer';
 import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
-import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
+import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter } from './helper';
 
 // crawl post comments and post content
 export class PostCommentCrawler {
@@ -31,6 +31,10 @@ export class PostCommentCrawler {
       const post = await this.getPostContent(page);
       const comments = await this.getComments(page);
 
+      await delayRandomTime(500, 2000);
+      console.log('browser close');
+      await browser.close();
+
       return {
         link: this.url,
         content: post.content,
@@ -41,6 +45,7 @@ export class PostCommentCrawler {
       console.error(error);
     } finally {
       await delayRandomTime(1000, 6000);
+      console.log('browser close');
       await browser.close();
     }
   }
