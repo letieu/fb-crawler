@@ -7,7 +7,7 @@ import { getDbConfig } from '../database/helper';
 import { PostCommentCrawler } from '../crawlers/post-comments-crawler';
 import { checkAccount } from '../account-check';
 
-const limit = 10; // TODO: update
+const limit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
 
 export type CrawCommentlJob = {
   postUrl: string;

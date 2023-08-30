@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer';
 import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
-import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter } from './helper';
+import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
 
 // crawl post comments and post content
 export class PostCommentCrawler {
@@ -27,7 +27,7 @@ export class PostCommentCrawler {
       const url = convertToPostLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
 
-      const loginSuccess = await ensureLogin(page, this.account); // TODO: mark profileId as invalid if login fail
+      await loginFacebook(page, this.account);
       const post = await this.getPostContent(page);
       const comments = await this.getComments(page);
 

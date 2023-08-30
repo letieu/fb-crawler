@@ -6,7 +6,7 @@ import { Account } from '../crawlers/helper';
 import { postCommentsQueue } from '../queues/post-comments';
 import { checkAccount } from '../account-check';
 
-const limit = 3; // TODO: update
+const limit = parseInt(process.env.POST_IDS_LIMIT || '20');
 
 export type CrawPostIdslJob = {
   groupId: string;

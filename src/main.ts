@@ -17,11 +17,11 @@ async function main() {
   const w2 = await startGroupPostIds();
 
   // graceful shutdown
-  process.on('SIGTERM', async () => {
-    console.log('SIGTERM signal received: closing HTTP server');
+  process.on('SIGINT', async () => {
     await db.close();
     await w1.close();
     await w2.close();
+    console.log('Gracefully shutdown');
     process.exit(0);
   });
 }
@@ -56,24 +56,30 @@ function getRandomAccount(accounts: any[]) {
   return accounts[index];
 }
 
-// run main every 8 hours
-schedule.scheduleJob(
-  process.env.CRON_TIME ?? '* 0 */8 * * *',
-  async () => {
-    try {
-      await main();
-    } catch (err) {
-      console.log(err);
+
+if (process.env.START_NOW === 'true') {
+  for (const job in schedule.scheduledJobs) schedule.cancelJob(job);
+  main();
+  console.log('Start now');
+} else {
+
+  for (const job in schedule.scheduledJobs) schedule.cancelJob(job);
+
+  schedule.scheduleJob(
+    process.env.CRON_TIME ?? '* 0 */8 * * *',
+    async () => {
+      try {
+        await main();
+      } catch (err) {
+        console.log(err);
+      }
     }
-  }
-);
+  );
 
-process.on('SIGINT', function () {
-  schedule.gracefulShutdown()
-    .then(() => process.exit(0))
-});
-
-console.log(`Schedule: ${process.env.CRON_TIME ?? '* 0 */8 * * *'}`);
-
-main();
-console.log('Crawler started for the first time');
+  process.on('SIGINT', function () {
+    schedule.gracefulShutdown()
+      .then(() => process.exit(0))
+  });
+  console.log('Start with cron');
+  console.log(`Next run: ${schedule.nextInvocation()} \n`);
+}
