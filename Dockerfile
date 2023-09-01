@@ -14,7 +14,6 @@ COPY --chown=node:node package.json package-lock.json ./
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 RUN npm install
-RUN npm i -g concurrently
 
 COPY --chown=node:node . .
 
@@ -36,6 +35,8 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 COPY --chown=node:node --from=build /usr/src/app/.env ./.env
 COPY --chown=node:node --from=build /usr/src/app/package.json ./package.json
+
+RUN npm i -g concurrently
 
 # Start the server using the production build
 CMD [ "npm", "run", "start" ]
