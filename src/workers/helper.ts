@@ -1,4 +1,7 @@
 import { ConnectionOptions } from "bullmq";
+import { Account, CrawlResult } from "../crawlers/helper";
+import { PostDetailResult } from "../crawlers/post-comments-crawler";
+import { PostIdsResult } from "../crawlers/post-ids-crawler";
 
 export function getRedisConnection(): ConnectionOptions {
   const redisHost = process.env.REDIS_HOST;
@@ -13,6 +16,18 @@ export function getRedisConnection(): ConnectionOptions {
 }
 
 export enum QueueName {
-  GROUP_POST_IDS = 'GroupPostIds',
-  POST_COMMENTS = 'PostComments',
+  CRAWL = 'Crawl',
 }
+
+export enum JobType {
+  POST_IDS = 'PostIds',
+  POST_DETAIL = 'PostDetail',
+}
+
+export type CrawlJobData = {
+  url: string; // group url, post url
+  account: Account;
+  type: JobType;
+}
+
+export type CrawlJobResult = CrawlResult<PostDetailResult | PostIdsResult>;

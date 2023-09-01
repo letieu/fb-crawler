@@ -143,6 +143,15 @@ export function convertToPostLinkDesiredFormat(url) {
   return `https://mbasic.facebook.com/groups/${groupId}/posts/${postId}/`;
 }
 
+export function convertToGroupLinkDesiredFormat(url: string) {
+  const matches = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i);
+  if (matches) {
+    return `https://mbasic.facebook.com/groups/${matches[1]}/`;
+  }
+  return url.replace('www', 'mbasic');
+}
+  
+
 export function getGroupLink(id: string) {
   return `https://mbasic.facebook.com/groups/${id}/`;
 }

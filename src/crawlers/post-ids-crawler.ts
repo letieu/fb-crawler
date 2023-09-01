@@ -1,20 +1,27 @@
 import { Page } from 'puppeteer';
-import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult } from './helper';
+import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult, getGroupIdFromUrl, convertToGroupLinkDesiredFormat } from './helper';
 import { parsePostIds } from '../parsers/post-ids-parser';
+
+export type PostIdsResult = string[];
 
 // crawl post ids from group, (not page)
 export class PostIdsCrawler {
-  groupId: string;
+  url: string;
   account: Account;
   limit = 20;
 
-  constructor(id: string, account: Account) {
-    this.groupId = id;
+  groupId: string;
+
+  constructor(groupUrl: string, account: Account) {
+    this.url = groupUrl;
     this.account = account;
+
+    this.groupId = getGroupIdFromUrl(this.url);
   }
 
   setLimit(limit: number) {
     this.limit = limit;
+    return this;
   }
 
   async start() {
@@ -23,15 +30,14 @@ export class PostIdsCrawler {
       process.env.CHROME_WS_ENDPOINT,
     );
 
-    let res: CrawlResult<string[]>;
+    let res: CrawlResult<PostIdsResult>;
     let loginFailed = true;
 
     try {
       await loginFacebook(page, this.account);
       loginFailed = false;
 
-      const url = getGroupLink(this.groupId);
-
+      const url = convertToGroupLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
 
       const postIds = await this.getPostIds(page);

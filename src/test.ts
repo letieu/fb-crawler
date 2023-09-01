@@ -1,24 +1,15 @@
 import 'dotenv/config';
-import { groupPostIdsQueue } from './queues/group-post-ids';
-import { postCommentsQueue } from './queues/post-comments';
 import { PostIdsCrawler } from './crawlers/post-ids-crawler';
-import { PostCommentCrawler } from './crawlers/post-comments-crawler';
-import { initPuppeter, loginFacebook } from './crawlers/helper';
-import config from './crawlers/config';
+import { crawlQueue } from './queues/crawl-queue';
+import { JobType } from './workers/helper';
 
-export async function test() {
-  await new Promise(resolve => setTimeout(resolve, 5000));
+const account = {
+  username: "100056661579667",
+  password: "123@Xuanzhi",
+  secretCode: "NXGAKLIBS3ANBGQBKAZOAQZLPFFKG44D"
+}
 
-  const account = {
-    username: "100056661579667",
-    password: "123@Xuanzhi",
-    secretCode: "NXGAKLIBS3ANBGQBKAZOAQZLPFFKG44D"
-  }
-
-  // await groupPostIdsQueue.drain();
-  // await postCommentsQueue.drain();
-
-
+async function testCrawler() {
   const crawler = new PostIdsCrawler("817474248860972eld", account);
   // const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", account);
   crawler.setLimit(30);
@@ -27,4 +18,22 @@ export async function test() {
   console.log(postIds);
 }
 
-test().catch(console.error);
+async function testTrigger() {
+  await crawlQueue.drain();
+
+  const job = await crawlQueue.add(
+    "https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", // name
+    {
+      type: JobType.POST_IDS,
+      account,
+      url: "https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/"
+    },
+  );
+
+  console.log(`Added job ${job.id} to queue ${crawlQueue.name} \n`);
+  // log total job in queue
+  const jobCounts = await crawlQueue.getJobCounts();
+  console.log(jobCounts);
+}
+
+testTrigger();

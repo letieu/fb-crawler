@@ -12,7 +12,7 @@ export type CommentResult = {
   uid: string;
 }
 
-export type PostResult = {
+export type PostDetailResult = {
   link: string;
   content: string;
   userId: string;
@@ -20,36 +20,37 @@ export type PostResult = {
 }
 
 // crawl post comments and post content
-export class PostCommentCrawler {
-  url: string;
+export class PostDetailCrawler {
+  postUrl: string;
   account: Account;
 
   limit = 20;
 
   constructor(url: string, account: Account) {
-    this.url = url;
+    this.postUrl = url;
     this.account = account;
   }
 
   setLimit(limit: number) {
     this.limit = limit;
+    return this;
   }
 
   async start() {
-    console.log(`Start crawling post ${this.url} \n`);
+    console.log(`Start crawling post ${this.postUrl} \n`);
     const { browser, page } = await initPuppeter(
       this.account,
       process.env.CHROME_WS_ENDPOINT,
     );
 
-    let res: CrawlResult<PostResult>;
+    let res: CrawlResult<PostDetailResult>;
     let loginFailed = true;
 
     try {
       await loginFacebook(page, this.account);
       loginFailed = false;
 
-      const url = convertToPostLinkDesiredFormat(this.url);
+      const url = convertToPostLinkDesiredFormat(this.postUrl);
       await page.goto(url, { waitUntil: "networkidle2" });
 
       await delayRandomTime(1000, 1500);
@@ -62,7 +63,7 @@ export class PostCommentCrawler {
         success: true,
         loginFailed,
         data: {
-          link: this.url,
+          link: this.postUrl,
           content: post.content,
           userId: post.uid,
           comments
