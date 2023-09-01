@@ -4,9 +4,9 @@ import { crawlQueue } from './queues/crawl-queue';
 import { JobType } from './workers/helper';
 
 const account = {
-  username: "100056661579667",
+  username: "100057832492689",
   password: "123@Xuanzhi",
-  secretCode: "NXGAKLIBS3ANBGQBKAZOAQZLPFFKG44D"
+  secretCode: "GZHLF5OPEZVTCE5JDWV6NL5QMLADKNZF"
 }
 
 async function testCrawler() {
@@ -36,4 +36,4 @@ async function testTrigger() {
   console.log(jobCounts);
 }
 
-testTrigger();
+testCrawler();

@@ -21,13 +21,6 @@ export async function checkAccount(account: Account) {
     console.log(`Account ${account.username} marked as inactive`);
 
     await db.close();
-
-    // const index = accountPool.findIndex((acc) => acc.username === account.username);
-
-    // if (index > -1) {
-    //   accountPool.splice(index, 1);
-    //   console.log(`Account ${account.username} removed from pool`);
-    // }
   }
 }
 

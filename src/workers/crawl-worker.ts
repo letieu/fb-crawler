@@ -5,6 +5,7 @@ import { CrawlJobData, CrawlJobResult, JobType, QueueName, getRedisConnection } 
 import Database from '../database/database';
 import { getDbConfig } from '../database/helper';
 import { PostDetailCrawler } from '../crawlers/post-comments-crawler';
+import { checkAccount } from '../account-check';
 
 const postLimit = parseInt(process.env.POST_IDS_LIMIT || '20');
 const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
@@ -32,8 +33,10 @@ export async function startCrawlWorker() {
   });
 
   worker.on('completed', async (job) => {
-    console.log(`Job ${job.id} completed with result: \n`);
-    console.log(job.returnvalue);
+    const { loginFailed } = job.returnvalue;
+    if (loginFailed) {
+      await checkAccount(job.data.account);
+    }
   });
 
   async function crawlHandler(job: Job<CrawlJobData>) {
