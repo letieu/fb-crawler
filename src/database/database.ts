@@ -5,7 +5,7 @@ import { RowDataPacket } from 'mysql2/promise';
 type Comment = {
   commentId: string;
   name: string;
-  phone: string;
+  phone?: string;
   uid: string;
   comment: string;
 }

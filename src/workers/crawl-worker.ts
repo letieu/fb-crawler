@@ -36,28 +36,42 @@ export async function startCrawlWorker() {
     console.log(job.returnvalue);
   });
 
-  console.log('Worker started for GroupPostIds');
-  return worker;
-}
+  async function crawlHandler(job: Job<CrawlJobData>) {
+    const { url, account, type } = job.data;
 
+    switch (type) {
+      case JobType.POST_IDS:
+        const postIdCrawler = new PostIdsCrawler(url, account);
+        const postIdsResult = await postIdCrawler
+          .setLimit(postLimit)
+          .start();
 
-async function crawlHandler(job: Job<CrawlJobData>) {
-  const { url, account, type } = job.data;
+        if (postIdsResult.success) {
+          db.savePostLinks(postIdsResult.data);
+        }
 
-  switch (type) {
-    case JobType.POST_IDS:
-      const postIdCrawler = new PostIdsCrawler(url, account);
-      return postIdCrawler
-        .setLimit(postLimit)
-        .start();
+        return postIdsResult;
 
-    case JobType.POST_DETAIL:
-      const postDetailCrawler = new PostDetailCrawler(url, account);
-      return postDetailCrawler
-        .setLimit(commentLimit)
-        .start();
+      case JobType.POST_DETAIL:
+        const postDetailCrawler = new PostDetailCrawler(url, account);
+        const postDetailResult = await postDetailCrawler
+          .setLimit(commentLimit)
+          .start();
 
-    default:
-      throw new Error(`Invalid type ${type}`);
+        if (postDetailResult.success) {
+          db.savePost({
+            content: postDetailResult.data.content,
+            link: postDetailResult.data.link,
+            comments: postDetailResult.data.comments,
+          });
+        }
+
+        return postDetailResult;
+
+      default:
+        throw new Error(`Invalid type ${type}`);
+    }
   }
+
+  return worker;
 }
