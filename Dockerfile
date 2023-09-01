@@ -12,7 +12,9 @@ COPY --chown=node:node package.json package-lock.json ./
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
 RUN npm install
+RUN npm i -g concurrently
 
 COPY --chown=node:node . .
 
@@ -36,6 +38,5 @@ COPY --chown=node:node --from=build /usr/src/app/.env ./.env
 COPY --chown=node:node --from=build /usr/src/app/swagger.yaml ./swagger.yaml
 
 # Start the server using the production build
-CMD [ "node", "dist/main.js" ]
-# CMD [ "node", "dist/test.js" ]
+CMD [ "npm", "run", "start" ]
 EXPOSE 3001

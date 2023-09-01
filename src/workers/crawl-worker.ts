@@ -10,6 +10,9 @@ import { checkAccount } from '../account-check';
 const postLimit = parseInt(process.env.POST_IDS_LIMIT || '20');
 const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
 
+console.log(`Post limit: ${postLimit}`);
+console.log(`Comment limit: ${commentLimit}`);
+
 export async function startCrawlWorker() {
   const db = new Database(getDbConfig());
   await db.init();

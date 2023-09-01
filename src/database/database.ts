@@ -146,6 +146,7 @@ class Database {
 
   async close() {
     await this.dbConnection.end();
+    console.log('Database closed');
   }
 }
 

@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/main.js",
-    "dev": "ts-node src/main.ts"
+    "start-worker": "node dist/scripts/start-worker.js",
+    "start-schedule": "node dist/scripts/schedule-create-jobs.js",
+    "start": "concurrently \"npm:start-worker\" \"npm:start-schedule\""
   },
   "author": "",
   "license": "ISC",
@@ -19,11 +20,11 @@
     "@bull-board/express": "^5.8.0",
     "body-parser": "^1.20.2",
     "bullmq": "^4.8.0",
+    "cron": "^2.4.3",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "install": "^0.13.0",
     "mysql2": "^3.6.0",
-    "node-schedule": "^2.1.1",
     "npm": "^9.8.1",
     "otplib": "^12.0.1",
     "puppeteer-core": "^21.1.1"
