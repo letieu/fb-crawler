@@ -39,4 +39,3 @@ COPY --chown=node:node --from=build /usr/src/app/swagger.yaml ./swagger.yaml
 
 # Start the server using the production build
 CMD [ "npm", "run", "start" ]
-EXPOSE 3001

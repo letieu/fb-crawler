@@ -16,8 +16,6 @@ services:
     container_name: fb-crawler-app
     env_file:
       - .env
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
     depends_on:
       - redis
     networks:
