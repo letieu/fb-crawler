@@ -1,7 +1,23 @@
 import { Page } from 'puppeteer';
 import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
-import { Account, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
+import { Account, CrawlResult, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
+
+export type CommentResult = {
+  commentId: string;
+  name: string;
+  comment: string;
+  images: string[];
+  timestamp: string;
+  uid: string;
+}
+
+export type PostResult = {
+  link: string;
+  content: string;
+  userId: string;
+  comments: CommentResult[];
+}
 
 // crawl post comments and post content
 export class PostCommentCrawler {
@@ -23,14 +39,15 @@ export class PostCommentCrawler {
     console.log(`Start crawling post ${this.url} \n`);
     const { browser, page } = await initPuppeter(
       this.account,
-      process.env.BROWSER_COMMENT,
-      'comment',
+      process.env.CHROME_WS_ENDPOINT,
     );
 
-    let res;
+    let res: CrawlResult<PostResult>;
+    let loginFailed = true;
 
     try {
       await loginFacebook(page, this.account);
+      loginFailed = false;
 
       const url = convertToPostLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
@@ -42,12 +59,23 @@ export class PostCommentCrawler {
       const comments = await this.getComments(page);
 
       res = {
-        link: this.url,
-        content: post.content,
-        userId: post.uid,
-        comments
+        success: true,
+        loginFailed,
+        data: {
+          link: this.url,
+          content: post.content,
+          userId: post.uid,
+          comments
+        }
       }
     } catch (error) {
+      console.log('error when crawling post comments: ');
+      console.error(error);
+      res = {
+        success: false,
+        loginFailed,
+        data: null
+      };
     } finally {
       await browser.close();
     }
@@ -58,7 +86,7 @@ export class PostCommentCrawler {
   }
 
   async getComments(page: Page) {
-    const allComments = [];
+    const allComments: CommentResult[] = [];
 
     while (true) {
       const comments = await page.evaluate(parseComments);

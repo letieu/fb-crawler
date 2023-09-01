@@ -8,11 +8,17 @@ export type Account = {
   secretCode: string;
 }
 
-export async function initPuppeter(account?: Account, endpoint: string = '', prefix: string = '') {
+export type CrawlResult<T> = {
+  success: boolean;
+  loginFailed: boolean;
+  data: T;
+}
+
+export async function initPuppeter(account?: Account, endpoint: string = '') {
   let browser: Browser;
   let page: Page;
 
-  const profileName = `${prefix}_${account.username}`;
+  const profileName = `_${account.username}`;
 
   if (endpoint) {
     console.log('Use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));

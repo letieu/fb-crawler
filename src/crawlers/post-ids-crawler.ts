@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId } from './helper';
+import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult } from './helper';
 import { parsePostIds } from '../parsers/post-ids-parser';
 
 // crawl post ids from group, (not page)
@@ -20,23 +20,34 @@ export class PostIdsCrawler {
   async start() {
     const { browser, page } = await initPuppeter(
       this.account,
-      process.env.BROWSER_POST,
-      'post'
+      process.env.CHROME_WS_ENDPOINT,
     );
 
-    let res;
+    let res: CrawlResult<string[]>;
+    let loginFailed = true;
 
     try {
       await loginFacebook(page, this.account);
+      loginFailed = false;
 
       const url = getGroupLink(this.groupId);
 
       await page.goto(url, { waitUntil: "networkidle2" });
 
       const postIds = await this.getPostIds(page);
-      res = postIds;
+      res = {
+        success: true,
+        loginFailed: false,
+        data: postIds,
+      }
     } catch (error) {
+      console.log('error when crawling post ids: ');
       console.error(error);
+      res = {
+        success: false,
+        loginFailed,
+        data: [],
+      }
     } finally {
       await browser.close();
     }
