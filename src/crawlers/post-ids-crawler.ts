@@ -1,5 +1,5 @@
-import { Page } from 'puppeteer';
-import { Account, getGroupLink, convertToPostLinkDesiredFormat, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult, getGroupIdFromUrl, convertToGroupLinkDesiredFormat } from './helper';
+import { Page } from 'puppeteer-core';
+import { Account, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult, getGroupIdFromUrl, convertToGroupLinkDesiredFormat } from './helper';
 import { parsePostIds } from '../parsers/post-ids-parser';
 
 export type PostIdsResult = string[];

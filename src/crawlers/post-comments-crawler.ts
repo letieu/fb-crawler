@@ -1,4 +1,4 @@
-import { Page } from 'puppeteer';
+import { Page } from 'puppeteer-core';
 import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
 import { Account, CrawlResult, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
