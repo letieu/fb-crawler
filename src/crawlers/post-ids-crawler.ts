@@ -57,7 +57,7 @@ export class PostIdsCrawler {
     } finally {
       await browser.close();
     }
-    await delayRandomTime(1000, 1500);
+    await delayRandomTime(3000, 5000);
 
     return res;
   }

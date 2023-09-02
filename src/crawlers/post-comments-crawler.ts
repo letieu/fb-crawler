@@ -81,7 +81,7 @@ export class PostDetailCrawler {
       await browser.close();
     }
 
-    await delayRandomTime(1000, 3000);
+    await delayRandomTime(3000, 5000);
 
     return res;
   }
