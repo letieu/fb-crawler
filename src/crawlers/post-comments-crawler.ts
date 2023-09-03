@@ -99,6 +99,7 @@ export class PostDetailCrawler {
       const loadMoreSelector = "[id^=see_next_] > a";
       const loadMoreLink = await page.$(loadMoreSelector);
 
+
       if (loadMoreLink) {
         await delayRandomTime(1000, 6000);
 
@@ -116,9 +117,9 @@ export class PostDetailCrawler {
         });
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        const link = await page.$eval(loadMoreSelector, (el) => el.getAttribute("href"));
 
-        await page.click(loadMoreSelector);
-        await page.waitForNavigation({ waitUntil: "networkidle2" });
+        await page.goto(link, { waitUntil: "networkidle2" });
       }
       else {
         break;
