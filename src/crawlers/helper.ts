@@ -16,7 +16,6 @@ export type CrawlResult<T> = {
 
 export async function initPuppeter(account?: Account, endpoint: string = '') {
   let browser: Browser;
-  let page: Page;
 
   const profileName = `_${account.username}`;
 
@@ -45,10 +44,8 @@ export async function initPuppeter(account?: Account, endpoint: string = '') {
     "geolocation",
     "notifications",
   ]);
-  page = await browser.newPage();
-  page.setViewport({ width: 1500, height: 764 });
 
-  return { browser, page };
+  return browser;
 }
 
 export async function loginFacebook(page: Page, account: Account) {

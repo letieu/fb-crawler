@@ -1,11 +1,11 @@
 import 'dotenv/config';
 import { Job, Worker } from 'bullmq';
-import { PostIdsCrawler } from '../crawlers/post-ids-crawler';
+import { PostIdsCrawler, PostIdsResult } from '../crawlers/post-ids-crawler';
 import { CrawlJobData, CrawlJobResult, JobType, QueueName, getRedisConnection } from './helper';
 import Database from '../database/database';
 import { getDbConfig } from '../database/helper';
-import { PostDetailCrawler } from '../crawlers/post-comments-crawler';
-import { checkAccount } from '../account-check';
+import { PostDetailCrawler, PostDetailResult } from '../crawlers/post-comments-crawler';
+import { initPuppeter } from '../crawlers/helper';
 
 const postLimit = parseInt(process.env.POST_IDS_LIMIT || '20');
 const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
@@ -16,6 +16,13 @@ console.log(`Comment limit: ${commentLimit}`);
 export async function startCrawlWorker() {
   const db = new Database(getDbConfig());
   await db.init();
+
+  let account = await getNewAccount(db);
+
+  let browser = await initPuppeter(
+    account,
+    process.env.CHROME_WS_ENDPOINT,
+  );
 
   const worker = new Worker<CrawlJobData, CrawlJobResult>(
     QueueName.CRAWL,
@@ -36,48 +43,86 @@ export async function startCrawlWorker() {
   });
 
   worker.on('completed', async (job) => {
-    const { loginFailed } = job.returnvalue;
-    if (loginFailed) {
-      await checkAccount(job.data.account);
-    }
+    console.log(`Job ${job.id} completed`);
   });
 
   async function crawlHandler(job: Job<CrawlJobData>) {
-    const { url, account, type } = job.data;
+    const { url, type } = job.data;
+
+    let result: CrawlJobResult;
+
+    const page = await browser.newPage();
+    page.setViewport({ width: 1500, height: 764 });
 
     switch (type) {
       case JobType.POST_IDS:
-        const postIdCrawler = new PostIdsCrawler(url, account);
-        const postIdsResult = await postIdCrawler
+        const postIdCrawler = new PostIdsCrawler(url);
+        result = await postIdCrawler
           .setLimit(postLimit)
-          .start();
+          .setAccount(account)
+          .start(page);
 
-        if (postIdsResult.success) {
-          db.savePostLinks(postIdsResult.data);
+        if (result.success) {
+          db.savePostLinks(result.data as PostIdsResult);
         }
 
-        return postIdsResult;
+        break;
 
       case JobType.POST_DETAIL:
-        const postDetailCrawler = new PostDetailCrawler(url, account);
-        const postDetailResult = await postDetailCrawler
+        const postDetailCrawler = new PostDetailCrawler(url);
+        result = await postDetailCrawler
           .setLimit(commentLimit)
-          .start();
+          .setAccount(account)
+          .start(page);
 
-        if (postDetailResult.success) {
+        if (result.success) {
+          const data = result.data as PostDetailResult;
           db.savePost({
-            content: postDetailResult.data.content,
-            link: postDetailResult.data.link,
-            comments: postDetailResult.data.comments,
+            content: data.content,
+            link: data.link,
+            comments: data.comments,
           });
         }
 
-        return postDetailResult;
+        break;
 
       default:
         throw new Error(`Invalid type ${type}`);
     }
+
+    await page.close();
+
+    const { loginFailed } = result;
+
+    if (loginFailed) {
+      console.log('Login failed, trying to get new account');
+      await browser.close();
+
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // wait for 5s
+
+      await db.updateAccountStatus(account.username, 2);
+
+      account = await getNewAccount(db);
+
+      browser = await initPuppeter(
+        account,
+        process.env.CHROME_WS_ENDPOINT,
+      );
+
+      console.log(`Got new account ${account.username}, starting new browser`);
+    }
+
+    return result;
   }
 
+  console.log('Crawl worker started with account: ', account.username);
   return worker;
+}
+
+async function getNewAccount(db: Database) {
+  const accounts = await db.getAccounts();
+  if (accounts.length === 0) {
+    throw new Error('No account found');
+  }
+  return accounts[0];
 }

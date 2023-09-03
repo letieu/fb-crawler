@@ -2,20 +2,12 @@ import 'dotenv/config';
 import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { crawlQueue } from './queues/crawl-queue';
 import { JobType } from './workers/helper';
+import { initPuppeter } from './crawlers/helper';
 
 const account = {
-  username: "xx",
-  password: "xs",
-  secretCode: "xx"
-}
-
-async function testCrawler() {
-  const crawler = new PostIdsCrawler("817474248860972eld", account);
-  // const crawler = new PostCommentCrawler("https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", account);
-  crawler.setLimit(30);
-
-  const postIds = await crawler.start();
-  console.log(postIds);
+  username: "100048585607851",
+  password: "123@Xuanzhi",
+  secretCode: "TKSEI5NK6JA7SWUDJSSDCZ4ZIIPKK2YQ"
 }
 
 async function testTrigger() {
@@ -25,7 +17,6 @@ async function testTrigger() {
     "https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/", // name
     {
       type: JobType.POST_IDS,
-      account,
       url: "https://www.facebook.com/groups/817474248860972eld/posts/1373830483225343/"
     },
   );
@@ -36,4 +27,5 @@ async function testTrigger() {
   console.log(jobCounts);
 }
 
-testCrawler();
+
+testTrigger();

@@ -26,7 +26,6 @@ export enum JobType {
 
 export type CrawlJobData = {
   url: string; // group url, post url
-  account: Account;
   type: JobType;
 }
 

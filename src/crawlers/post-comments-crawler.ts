@@ -22,13 +22,12 @@ export type PostDetailResult = {
 // crawl post comments and post content
 export class PostDetailCrawler {
   postUrl: string;
-  account: Account;
 
+  account: Account;
   limit = 20;
 
-  constructor(url: string, account: Account) {
+  constructor(url: string) {
     this.postUrl = url;
-    this.account = account;
   }
 
   setLimit(limit: number) {
@@ -36,12 +35,13 @@ export class PostDetailCrawler {
     return this;
   }
 
-  async start() {
+  setAccount(account: Account) {
+    this.account = account;
+    return this;
+  }
+
+  async start(page: Page) {
     console.log(`Start crawling post ${this.postUrl} \n`);
-    const { browser, page } = await initPuppeter(
-      this.account,
-      process.env.CHROME_WS_ENDPOINT,
-    );
 
     let res: CrawlResult<PostDetailResult>;
     let loginFailed = true;
@@ -78,10 +78,8 @@ export class PostDetailCrawler {
         data: null
       };
     } finally {
-      await browser.close();
+      await delayRandomTime(1000, 3000);
     }
-
-    await delayRandomTime(3000, 5000);
 
     return res;
   }

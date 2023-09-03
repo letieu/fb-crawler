@@ -1,6 +1,5 @@
 import { Queue } from 'bullmq';
 import { CrawlJobData, CrawlJobResult, JobType, QueueName, getRedisConnection } from '../workers/helper';
-import { initAccountPool, accountPool, getRandomAccount } from '../account-check';
 import Database from '../database/database';
 import { getDbConfig } from '../database/helper';
 
@@ -13,12 +12,6 @@ export async function triggerCrawl() {
 
   const db = new Database(getDbConfig());
   await db.init();
-
-  await initAccountPool(db);
-  if (!accountPool.length) {
-    console.log('No account found');
-    return;
-  }
 
   await createCrawlPostIdsJobs(db);
   await createCrawlPostDetailJobs(db);
@@ -39,7 +32,6 @@ async function createCrawlPostIdsJobs(db: Database) {
     data: {
       type: JobType.POST_IDS,
       url: group.link,
-      account: getRandomAccount(),
     },
     opts: {
       delay: 1000 * 20,
@@ -62,7 +54,6 @@ async function createCrawlPostDetailJobs(db: Database) {
     data: {
       type: JobType.POST_DETAIL,
       url: post.link,
-      account: getRandomAccount(),
     },
     opts: {
       delay: 1000 * 20,

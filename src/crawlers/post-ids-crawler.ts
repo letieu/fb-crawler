@@ -12,9 +12,8 @@ export class PostIdsCrawler {
 
   groupId: string;
 
-  constructor(groupUrl: string, account: Account) {
+  constructor(groupUrl: string) {
     this.url = groupUrl;
-    this.account = account;
 
     this.groupId = getGroupIdFromUrl(this.url);
   }
@@ -24,12 +23,12 @@ export class PostIdsCrawler {
     return this;
   }
 
-  async start() {
-    const { browser, page } = await initPuppeter(
-      this.account,
-      process.env.CHROME_WS_ENDPOINT,
-    );
+  setAccount(account: Account) {
+    this.account = account;
+    return this;
+  }
 
+  async start(page: Page) {
     let res: CrawlResult<PostIdsResult>;
     let loginFailed = true;
 
@@ -55,9 +54,8 @@ export class PostIdsCrawler {
         data: [],
       }
     } finally {
-      await browser.close();
+      await delayRandomTime(1000, 3000);
     }
-    await delayRandomTime(3000, 5000);
 
     return res;
   }
@@ -85,9 +83,7 @@ export class PostIdsCrawler {
           window.scrollTo(0, document.body.scrollHeight);
         });
 
-        console.log("click load more wait for navigation");
         await page.goto(loadMoreLink, { waitUntil: "networkidle2" });
-        console.log("after wait for navigation");
         await delayRandomTime(1000, 2000);
       }
       else {
