@@ -35,7 +35,7 @@ async function testCrawl() {
   const page = await browser.newPage();
   page.setViewport({ width: 1500, height: 764 });
 
-  const url = "https://www.facebook.com/groups/3010245959248794/posts/3643909915882392/";
+  const url = "https://www.facebook.com/groups/3010245959248794/posts/3650186488588068/";
 
   const postDetailCrawler = new PostDetailCrawler(url);
   const result = await postDetailCrawler
