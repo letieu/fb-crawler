@@ -8,6 +8,7 @@ type Comment = {
   phone?: string;
   uid: string;
   comment: string;
+  time: string;
 }
 
 type Post = {
@@ -87,8 +88,8 @@ class Database {
     const placeholders = [];
 
     for (const comment of comments) {
-      placeholders.push('(?, ?, ?, ?, ?)');
-      values.push(comment.commentId, comment.name, comment.uid, comment.comment, postId);
+      placeholders.push('(?, ?, ?, ?, ?, ?)');
+      values.push(comment.commentId, comment.name, comment.uid, comment.comment, postId, comment.time);
     }
 
     const placeholdersString = placeholders.join(', ');

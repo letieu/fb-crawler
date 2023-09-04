@@ -8,7 +8,7 @@ export type CommentResult = {
   name: string;
   comment: string;
   images: string[];
-  timestamp: string;
+  time: string;
   uid: string;
 }
 

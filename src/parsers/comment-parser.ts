@@ -26,7 +26,7 @@ export const parseComments = () => {
     return commentNode.querySelector("h3 + div")?.innerHTML;
   }
 
-  const getTimestamp = (commentNode: Element) => {
+  const getTime = (commentNode: Element) => {
     return commentNode.querySelector("h3 + div + div > abbr")?.innerHTML;
   }
 
@@ -52,7 +52,7 @@ export const parseComments = () => {
       name: getUser(commentNode),
       comment: getContent(commentNode),
       images: getImages(commentNode),
-      timestamp: getTimestamp(commentNode),
+      time: getTime(commentNode),
       uid: getUserId(commentNode),
     };
     return comment;
