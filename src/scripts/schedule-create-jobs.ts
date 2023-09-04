@@ -9,7 +9,7 @@ async function main() {
     cronTime,
     async () => {
       await triggerCrawl();
-      console.log('Trigger crawl by schedule');
+      console.log(`Trigger crawl by schedule at ${new Date()}`);
     },
     null,
     true,

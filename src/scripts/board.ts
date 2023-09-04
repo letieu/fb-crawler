@@ -1,13 +1,11 @@
 import express from 'express';
-import QueueMQ from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { crawlQueue } from '../queues/crawl-queue';
 
 const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
+serverAdapter.setBasePath('/queues');
 
 const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
   queues: [new BullMQAdapter(crawlQueue)],
