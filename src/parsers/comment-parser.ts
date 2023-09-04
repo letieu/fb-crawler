@@ -27,7 +27,7 @@ export const parseComments = () => {
   }
 
   const getTime = (commentNode: Element) => {
-    return commentNode.querySelector("h3 + div + div > abbr")?.innerHTML;
+    return commentNode.querySelector("h3 + div + div + div > abbr")?.innerHTML;
   }
 
   const getImages = (commentNode: Element) => {
@@ -43,8 +43,6 @@ export const parseComments = () => {
   const commentNodes = document.querySelectorAll(
     "#m_story_permalink_view > div[id^=ufi_] > div > div:has(span[id^=like_]) > div:not([id^=see_])"
   );
-
-  console.log('commentNodes', commentNodes);
 
   const comments = Array.from(commentNodes).map((commentNode) => {
     const comment = {

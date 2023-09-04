@@ -57,6 +57,8 @@ async function createCrawlPostDetailJobs(db: Database) {
     },
     opts: {
       delay: 1000 * 20,
+      removeOnComplete: 100,
+      removeOnFail: 500
     },
   })));
 
