@@ -2,6 +2,8 @@ import * as mysql from 'mysql2/promise';
 import { Account, getPostIdFromUrl } from '../crawlers/helper';
 import { RowDataPacket } from 'mysql2/promise';
 
+const postLimit = 1000;
+
 type Comment = {
   commentId: string;
   name: string;
@@ -94,7 +96,7 @@ class Database {
 
     const placeholdersString = placeholders.join(', ');
 
-    const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id) VALUES ${placeholdersString}`;
+    const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.dbConnection.query(query, values);
@@ -106,7 +108,7 @@ class Database {
 
   async getPosts() {
     // get all post status = 1
-    const query = 'SELECT * FROM posts WHERE status = 1';
+    const query = `SELECT * FROM posts WHERE status = 1 LIMIT ${postLimit}`;
     const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
     return rows;
   }
