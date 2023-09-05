@@ -1,6 +1,6 @@
 import * as mysql from 'mysql2/promise';
 import { Account, getPostIdFromUrl } from '../crawlers/helper';
-import { RowDataPacket } from 'mysql2/promise';
+import { OkPacket, RowDataPacket } from 'mysql2/promise';
 
 const postLimit = 1000;
 
@@ -152,6 +152,30 @@ class Database {
 
     const [rows, fields] = await this.dbConnection.query(query, [status, username]);
 
+    return rows;
+  }
+
+  async markOldPostAsInactive(days: number = 1) {
+    const query = `
+      UPDATE
+        posts
+      SET
+        status = 2
+      WHERE
+        status = 1
+        AND posts.id IN (
+          SELECT
+            posts.id AS post_id
+          FROM
+            posts
+            LEFT JOIN comments ON posts.id = comments.post_id
+          GROUP BY
+            posts.id
+          HAVING
+            MAX(comments.created_at) <= NOW() - INTERVAL ${days} DAY
+      )`;
+
+    const [rows, fields] = await this.dbConnection.query<OkPacket>(query);
     return rows;
   }
 
