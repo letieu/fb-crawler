@@ -1,6 +1,4 @@
 ## Crawl
 
 ## TODO:
-
-## post cannot crawl comment
-- https://www.facebook.com/groups/3010245959248794/posts/3630975163842534/
+- Check drain queue, maybe it's not working

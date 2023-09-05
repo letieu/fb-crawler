@@ -9,7 +9,7 @@
     "start-worker": "node dist/scripts/start-worker.js",
     "start-schedule": "node dist/scripts/schedule-create-jobs.js",
     "start-board": "node dist/scripts/board.js",
-    "start": "concurrently \"npm:start-worker\" \"npm:start-schedule\" \"npm:start-board\" "
+    "start": "concurrently \"npm:start-worker\" \"npm:start-board\" "
   },
   "author": "",
   "license": "ISC",
