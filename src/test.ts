@@ -3,6 +3,8 @@ import { crawlQueue } from './queues/crawl-queue';
 import { JobType } from './workers/helper';
 import { PostDetailCrawler } from './crawlers/post-comments-crawler';
 import { initPuppeter } from './crawlers/helper';
+import Database from './database/database';
+import { getDbConfig } from './database/helper';
 
 const account = {
   username: "100062953837045",
@@ -46,5 +48,14 @@ async function testCrawl() {
   console.log(result);
 }
 
+async function testDb() {
+  const db = new Database(getDbConfig());
+  await db.init();
+
+  const posts = await db.getPosts();
+  console.log(posts);
+}
+
 // testTrigger();
-testCrawl();
+// testCrawl();
+testDb();

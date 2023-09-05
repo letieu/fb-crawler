@@ -29,6 +29,11 @@ export enum GroupStatus {
   INACTIVE = 2,
 }
 
+export enum PostStatus {
+  ACTIVE = 1,
+  INACTIVE = 2,
+}
+
 class Database {
   private dbConnection: mysql.Connection;
 
@@ -107,8 +112,11 @@ class Database {
   }
 
   async getPosts() {
-    // get all post status = 1
-    const query = `SELECT * FROM posts WHERE status = 1 LIMIT ${postLimit}`;
+    const query = `SELECT posts.*
+      FROM posts
+      INNER JOIN group_page ON posts.group_id = group_page.id
+      WHERE posts.status = 1 AND group_page.status = 1;`
+
     const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
     return rows;
   }
