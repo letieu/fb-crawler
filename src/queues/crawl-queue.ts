@@ -32,6 +32,7 @@ async function createCrawlPostIdsJobs(db: Database) {
     data: {
       type: JobType.POST_IDS,
       url: group.link,
+      id: group.id,
     },
     opts: {
       delay: 1000 * 20,
