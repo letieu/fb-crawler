@@ -47,7 +47,7 @@ export async function startCrawlWorker() {
   });
 
   async function crawlHandler(job: Job<CrawlJobData>) {
-    const { url, type } = job.data;
+    const { url, type, id } = job.data;
 
     let result: CrawlJobResult;
 
@@ -63,7 +63,7 @@ export async function startCrawlWorker() {
           .start(page);
 
         if (result.success) {
-          db.savePostLinks(result.data as PostIdsResult);
+          db.savePostLinks(result.data as PostIdsResult, id);
         }
 
         break;

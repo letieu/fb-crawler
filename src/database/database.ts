@@ -59,7 +59,7 @@ class Database {
     await this.saveComments(postDatabaseId, post.comments);
   }
 
-  async savePostLinks(postLinks: string[]) {
+  async savePostLinks(postLinks: string[], groupId: number) {
     if (postLinks.length === 0) {
       console.log('No post links to insert.');
       return;
@@ -69,13 +69,13 @@ class Database {
     const placeholders = [];
 
     for (const link of postLinks) {
-      placeholders.push('(?, ?)');
-      values.push(link, getPostIdFromUrl(link));
+      placeholders.push('(?, ?, ?)');
+      values.push(link, getPostIdFromUrl(link), groupId);
     }
 
     const placeholdersString = placeholders.join(', ');
 
-    const query = `REPLACE INTO posts (link, fb_id) VALUES ${placeholdersString}`;
+    const query = `REPLACE INTO posts (link, fb_id, group_id) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query, values);

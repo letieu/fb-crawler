@@ -27,6 +27,7 @@ export enum JobType {
 export type CrawlJobData = {
   url: string; // group url, post url
   type: JobType;
+  id?: number; // post id, group id on database
 }
 
 export type CrawlJobResult = CrawlResult<PostDetailResult | PostIdsResult>;
