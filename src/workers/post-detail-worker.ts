@@ -103,5 +103,10 @@ async function getNewAccount(db: Database) {
   if (accounts.length === 0) {
     throw new Error('No account found');
   }
-  return accounts[0];
+
+  const selectedAccount = accounts[0];
+
+  await db.updateAccountStatus(selectedAccount.username, AccountStatus.IN_USE);
+
+  return selectedAccount;
 }
