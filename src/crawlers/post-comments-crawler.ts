@@ -72,12 +72,17 @@ export class PostDetailCrawler {
     } catch (error) {
       console.log('error when crawling post comments: ');
       console.error(error);
+      console.log('loginFailed: ', loginFailed);
       res = {
         success: false,
         loginFailed,
         data: null
       };
     } finally {
+      console.log('Before close page');
+      await page.close();
+      console.log('After close page');
+
       await delayRandomTime(1000, 3000);
     }
 

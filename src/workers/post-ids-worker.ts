@@ -63,8 +63,6 @@ export async function startPostIdWorker() {
       db.savePostLinks(result.data as PostIdsResult, groupId);
     }
 
-    await page.close();
-
     const { loginFailed } = result;
 
     if (loginFailed) {

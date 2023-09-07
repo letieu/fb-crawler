@@ -48,12 +48,17 @@ export class PostIdsCrawler {
     } catch (error) {
       console.log('error when crawling post ids: ');
       console.error(error);
+      console.log('loginFailed: ', loginFailed);
+
       res = {
         success: false,
         loginFailed,
         data: [],
       }
     } finally {
+      console.log('Before close page');
+      await page.close();
+      console.log('After close page');
       await delayRandomTime(1000, 3000);
     }
 

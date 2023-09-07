@@ -68,9 +68,6 @@ export async function startPostDetailWorker() {
       });
     }
 
-
-    await page.close();
-
     const { loginFailed } = result;
 
     if (loginFailed) {
