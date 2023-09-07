@@ -7,6 +7,8 @@ export const postDetailQueue = new Queue<PostDetailJobData, PostDetailJobResult>
 });
 
 export async function createCrawlPostDetailJobs(db: Database) {
+  await postDetailQueue.drain(); // reset queue
+
   const posts = await db.getPosts();
 
   if (!posts.length) {
