@@ -27,8 +27,8 @@ docker-compose logs app -f
 ```
 0 0 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/mark-expire-post.js >> /var/log/fb-crawl.log
 
-0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-id.js >> /var/log/fb-crawl.log
+0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
 
-0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl.log
+0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
 
 ```
