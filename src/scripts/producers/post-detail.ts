@@ -9,6 +9,8 @@ async function main() {
   await createCrawlPostDetailJobs(db);
 
   await db.close();
+
+  process.exit(0);
 }
 
 main();
