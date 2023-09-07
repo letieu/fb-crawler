@@ -22,6 +22,7 @@ type Post = {
 export enum AccountStatus {
   ACTIVE = 1,
   INACTIVE = 2,
+  IN_USE = 3,
 }
 
 export enum GroupStatus {

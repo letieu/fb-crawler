@@ -33,15 +33,15 @@ services:
     environment:
       - CONNECTION_TIMEOUT=-1
 
-  # chrome2:
-  #   image: browserless/chrome
-  #   container_name: fb-crawler-chrome2
-  #   networks:
-  #     - fb-crawler-network
-  #   ports:
-  #     - "3222:3000"
-  #   environment:
-  #     - CONNECTION_TIMEOUT=-1
+  chrome2:
+    image: browserless/chrome
+    container_name: fb-crawler-chrome2
+    networks:
+      - fb-crawler-network
+    ports:
+      - "3222:3000"
+    environment:
+      - CONNECTION_TIMEOUT=-1
 
 networks:
   fb-crawler-network:

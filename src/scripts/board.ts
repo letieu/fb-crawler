@@ -2,13 +2,14 @@ import express from 'express';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { crawlQueue } from '../queues/crawl-queue';
+import { postIdQueue } from '../queues/post-id-queue';
+import { postDetailQueue } from '../queues/post-detail-queue';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/queues');
 
 const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
-  queues: [new BullMQAdapter(crawlQueue)],
+  queues: [new BullMQAdapter(postIdQueue), new BullMQAdapter(postDetailQueue)],
   serverAdapter: serverAdapter,
 });
 

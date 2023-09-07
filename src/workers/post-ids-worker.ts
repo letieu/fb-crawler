@@ -1,31 +1,30 @@
 import 'dotenv/config';
 import { Job, Worker } from 'bullmq';
 import { PostIdsCrawler, PostIdsResult } from '../crawlers/post-ids-crawler';
-import { CrawlJobData, CrawlJobResult, JobType, QueueName, getRedisConnection } from './helper';
-import Database from '../database/database';
+import Database, { AccountStatus } from '../database/database';
 import { getDbConfig } from '../database/helper';
-import { PostDetailCrawler, PostDetailResult } from '../crawlers/post-comments-crawler';
 import { initPuppeter } from '../crawlers/helper';
+import { PostIdJobData, PostIdJobResult, QueueName, getRedisConnection } from './helper';
 
 const postLimit = parseInt(process.env.POST_IDS_LIMIT || '20');
-const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
 
 console.log(`Post limit: ${postLimit}`);
-console.log(`Comment limit: ${commentLimit}`);
 
-export async function startCrawlWorker() {
+export async function startPostIdWorker() {
   const db = new Database(getDbConfig());
   await db.init();
 
   let account = await getNewAccount(db);
 
+  const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
+
   let browser = await initPuppeter(
     account,
-    process.env.CHROME_WS_ENDPOINT,
+    chromeWsEndpoint,
   );
 
-  const worker = new Worker<CrawlJobData, CrawlJobResult>(
-    QueueName.CRAWL,
+  const worker = new Worker<PostIdJobData, PostIdJobResult>(
+    QueueName.POST_IDS,
     crawlHandler,
     {
       connection: getRedisConnection(),
@@ -46,48 +45,22 @@ export async function startCrawlWorker() {
     console.log(`Job ${job.id} completed`);
   });
 
-  async function crawlHandler(job: Job<CrawlJobData>) {
-    const { url, type, id } = job.data;
+  async function crawlHandler(job: Job<PostIdJobData>) {
+    const { url, id: groupId } = job.data;
 
-    let result: CrawlJobResult;
+    let result: PostIdJobResult;
 
     const page = await browser.newPage();
     page.setViewport({ width: 1500, height: 764 });
 
-    switch (type) {
-      case JobType.POST_IDS:
-        const postIdCrawler = new PostIdsCrawler(url);
-        result = await postIdCrawler
-          .setLimit(postLimit)
-          .setAccount(account)
-          .start(page);
+    const postIdCrawler = new PostIdsCrawler(url);
+    result = await postIdCrawler
+      .setLimit(postLimit)
+      .setAccount(account)
+      .start(page);
 
-        if (result.success) {
-          db.savePostLinks(result.data as PostIdsResult, id);
-        }
-
-        break;
-
-      case JobType.POST_DETAIL:
-        const postDetailCrawler = new PostDetailCrawler(url);
-        result = await postDetailCrawler
-          .setLimit(commentLimit)
-          .setAccount(account)
-          .start(page);
-
-        if (result.success) {
-          const data = result.data as PostDetailResult;
-          db.savePost({
-            content: data.content,
-            link: data.link,
-            comments: data.comments,
-          });
-        }
-
-        break;
-
-      default:
-        throw new Error(`Invalid type ${type}`);
+    if (result.success) {
+      db.savePostLinks(result.data as PostIdsResult, groupId);
     }
 
     await page.close();
@@ -106,7 +79,7 @@ export async function startCrawlWorker() {
 
       browser = await initPuppeter(
         account,
-        process.env.CHROME_WS_ENDPOINT,
+        chromeWsEndpoint,
       );
 
       console.log(`Got new account ${account.username}, starting new browser`);
@@ -115,7 +88,7 @@ export async function startCrawlWorker() {
     return result;
   }
 
-  console.log('Crawl worker started with account: ', account.username);
+  console.log('Post id worker started with account: ', account.username);
   return worker;
 }
 
@@ -124,5 +97,10 @@ async function getNewAccount(db: Database) {
   if (accounts.length === 0) {
     throw new Error('No account found');
   }
-  return accounts[0];
+
+  const selectedAccount = accounts[0];
+
+  await db.updateAccountStatus(selectedAccount.username, AccountStatus.IN_USE);
+
+  return selectedAccount;
 }

@@ -6,10 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start-worker": "node dist/scripts/start-worker.js",
-    "start-schedule": "node dist/scripts/schedule-create-jobs.js",
+    "start-id-worker": "node dist/scripts/workers/post-id.js",
+    "start-detail-worker": "node dist/scripts/workers/post-detail.js",
     "start-board": "node dist/scripts/board.js",
-    "start": "concurrently \"npm:start-worker\" \"npm:start-board\" "
+    "start": "concurrently \"npm:start-id-worker\" \"npm:start-detail-worker\" \"npm:start-board\" "
   },
   "author": "",
   "license": "ISC",

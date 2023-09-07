@@ -16,18 +16,20 @@ export function getRedisConnection(): ConnectionOptions {
 }
 
 export enum QueueName {
-  CRAWL = 'Crawl',
+  POST_IDS = 'post_ids',
+  POST_DETAIL = 'post_detail',
 }
 
-export enum JobType {
-  POST_IDS = 'PostIds',
-  POST_DETAIL = 'PostDetail',
+export type PostIdJobData = {
+  url: string;
+  id?: number;
 }
 
-export type CrawlJobData = {
-  url: string; // group url, post url
-  type: JobType;
-  id?: number; // post id, group id on database
+export type PostDetailJobData = {
+  url: string;
+  id?: number;
 }
 
-export type CrawlJobResult = CrawlResult<PostDetailResult | PostIdsResult>;
+export type PostIdJobResult = CrawlResult<PostIdsResult>;
+
+export type PostDetailJobResult = CrawlResult<PostDetailResult>;
