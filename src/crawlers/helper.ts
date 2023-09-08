@@ -14,38 +14,35 @@ export type CrawlResult<T> = {
   data: T;
 }
 
-export async function initPuppeter(account?: Account, endpoint: string = '') {
-  let browser: Browser;
-
+export async function initPuppeter(account?: Account, endpoint: string = '', maxRetries: number = 3) {
+  let browser: Browser | null = null;
   const profileName = `_${account.username}`;
 
-  if (endpoint) {
-    console.log('Use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));
+  for (let retryCount = 1; retryCount <= maxRetries; retryCount++) {
+    try {
+      console.log('Attempt', retryCount, 'to use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));
 
-    browser = await puppeteer.connect({
-      browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username)
-    });
+      browser = await puppeteer.connect({
+        browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username)
+      });
+
+      if (browser) {
+        const context = browser.defaultBrowserContext();
+        context.overridePermissions(config.base_url, [
+          "geolocation",
+          "notifications",
+        ]);
+
+        return browser; // Success, return the browser
+      }
+    } catch (error) {
+      console.error('Error initializing browser on attempt', retryCount, ':', error);
+    }
+
+    await delayRandomTime(2000, 8000);
   }
-  else {
-    browser = await puppeteer.launch({
-      headless: false,
-      args: ["--no-sandbox", "--disable-gpu"],
-      userDataDir: `./profiles/${profileName}`,
-      devtools: false,
-    });
-  }
 
-  if (!browser) {
-    throw new Error('Cannot init browser');
-  }
-
-  const context = browser.defaultBrowserContext();
-  context.overridePermissions(config.base_url, [
-    "geolocation",
-    "notifications",
-  ]);
-
-  return browser;
+  throw new Error('Failed to initialize browser after multiple retries');
 }
 
 export async function loginFacebook(page: Page, account: Account) {
@@ -147,7 +144,7 @@ export function convertToGroupLinkDesiredFormat(url: string) {
   }
   return url.replace('www', 'mbasic');
 }
-  
+
 
 export function getGroupLink(id: string) {
   return `https://mbasic.facebook.com/groups/${id}/`;

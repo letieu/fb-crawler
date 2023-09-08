@@ -49,7 +49,7 @@ export class PostDetailCrawler {
     console.log(`Start crawling post ${this.postUrl} \n`);
 
     let res: CrawlResult<PostDetailResult>;
-    let loginFailed = true;
+    let loginFailed = false;
 
     try {
       browser = await initPuppeter(
@@ -60,8 +60,9 @@ export class PostDetailCrawler {
       const page = await browser.newPage();
       page.setViewport({ width: 1500, height: 764 });
 
-      await loginFacebook(page, this.account);
-      loginFailed = false;
+      await loginFacebook(page, this.account).catch(() => {
+        loginFailed = true;
+      });
 
       const url = convertToPostLinkDesiredFormat(this.postUrl);
       await page.goto(url, { waitUntil: "networkidle2" });
@@ -87,6 +88,7 @@ export class PostDetailCrawler {
     } catch (error) {
       console.log('error when crawling post: ');
       console.error(error);
+
       res = {
         success: false,
         loginFailed,

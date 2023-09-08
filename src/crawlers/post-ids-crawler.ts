@@ -34,12 +34,11 @@ export class PostIdsCrawler {
 
   async start() {
     let res: CrawlResult<PostIdsResult>;
-    let loginFailed = true;
+    let loginFailed = false;
 
     let browser: Browser;
 
     try {
-
       browser = await initPuppeter(
         this.account,
         chromeWsEndpoint,
@@ -48,8 +47,9 @@ export class PostIdsCrawler {
       const page = await browser.newPage();
       page.setViewport({ width: 1500, height: 764 });
 
-      await loginFacebook(page, this.account);
-      loginFailed = false;
+      await loginFacebook(page, this.account).catch(() => {
+        loginFailed = true;
+      });
 
       const url = convertToGroupLinkDesiredFormat(this.url);
       await page.goto(url, { waitUntil: "networkidle2" });
