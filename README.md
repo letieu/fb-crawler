@@ -19,16 +19,23 @@ docker-compose up -d
 docker-compose logs chrome1 -f
 docker-compose logs chrome2 -f
 
-# logs app
-docker-compose logs app -f
+# logs post id crawl
+docker-compose logs id-worker -f
+
+# logs post detail crawl
+docker-compose logs detail-worker -f
+
+# produce job
+docker-compose exec exec board node dist/scripts/producers/post-id.js
+docker-compose exec exec board node dist/scripts/producers/post-detail.js
 ```
 
 ## Crontab
 ```
-0 0 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/mark-expire-post.js >> /var/log/fb-crawl-expire.log
+0 0 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/mark-expire-post.js >> /var/log/fb-crawl-expire.log
 
-0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
+0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
 
-0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec app node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
+0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
 
 ```
