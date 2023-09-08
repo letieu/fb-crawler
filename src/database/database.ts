@@ -41,11 +41,9 @@ class Database {
 
   private pool: mysql.Connection;
 
-  private constructor(private dbConfig: mysql.ConnectionOptions) { }
-
-  private async init() {
+  private constructor(private dbConfig: mysql.ConnectionOptions) {
     this.pool = mysql.createPool({
-      ...this.dbConfig,
+      ...dbConfig,
       waitForConnections: true,
       connectionLimit: 10,
       maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
@@ -54,15 +52,12 @@ class Database {
       enableKeepAlive: true,
       keepAliveInitialDelay: 0
     });
-    await this.pool.connect();
-
     console.log('Database initialized');
   }
 
-  static async getInstance() {
+  static getInstance() {
     if (!Database.instance) {
       Database.instance = new Database(getDbConfig());
-      await Database.instance.init();
     }
 
     return Database.instance;
