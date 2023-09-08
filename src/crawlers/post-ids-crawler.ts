@@ -72,10 +72,11 @@ export class PostIdsCrawler {
         data: [],
       }
 
-      if (browser) await browser.close();
     } finally {
-      console.log('Before close page');
-      console.log('After close page');
+      if (browser) {
+        await browser.close();
+      }
+
       await delayRandomTime(1000, 3000);
     }
 
