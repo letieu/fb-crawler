@@ -9,11 +9,37 @@ services:
     networks:
       - fb-crawler-network
 
-  app:
+  id-worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fb-crawler-app
+    container_name: id-worker
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+    entrypoint: ["npm", "start-id-worker"]
+
+  detail-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: detail-worker
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+    entrypoint: ["npm", "start-detail-worker"]
+
+  board:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: board
     env_file:
       - .env
     depends_on:
@@ -22,6 +48,7 @@ services:
       - fb-crawler-network
     ports:
       - "3123:3123"
+    entrypoint: ["npm", "start-board"]
 
   chrome1:
     image: browserless/chrome

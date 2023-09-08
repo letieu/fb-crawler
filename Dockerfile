@@ -36,9 +36,9 @@ COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 COPY --chown=node:node --from=build /usr/src/app/.env ./.env
 COPY --chown=node:node --from=build /usr/src/app/package.json ./package.json
 
-RUN npm i -g concurrently
+# RUN npm i -g concurrently
 
 EXPOSE 3123
 
 # Start the server using the production build
-CMD [ "npm", "run", "start" ]
+# CMD [ "npm", "run", "start" ]
