@@ -23,7 +23,7 @@ export async function initPuppeter(account?: Account, endpoint: string = '', max
       console.log('Attempt', retryCount, 'to use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));
 
       browser = await puppeteer.connect({
-        browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username)
+        browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username),
       });
 
       if (browser) {
@@ -188,5 +188,5 @@ export async function close(browser: Browser) {
 }
 
 function getBrowserEndpointWithParams(endPoint: string, profileName: string) {
-  return `${endPoint}?--user-data-dir=~/profiles/${profileName}&--window-size=1500,764&--headless=false`;
+  return `${endPoint}?--user-data-dir=~/profiles/${profileName}&--window-size=1500,764&headless=false`;
 }
