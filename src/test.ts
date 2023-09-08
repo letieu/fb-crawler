@@ -13,25 +13,14 @@ const account = {
 
 async function testCrawl() {
 
-  const browser = await initPuppeter(
-    account,
-    process.env.CHROME_WS_ENDPOINT_ID,
-  );
-
-  const page = await browser.newPage();
-  page.setViewport({ width: 1500, height: 764 });
-
   const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/581509213010882/posts/1029138028247996/");
 
   const result = await postDetailCrawler
     .setLimit(10)
     .setAccount(account)
-    .start(page);
+    .start();
 
   console.log(result);
-
-  await page.close();
-  console.log("Page closed");
 
   await new Promise((resolve) => setTimeout(resolve, 50000));
 }
