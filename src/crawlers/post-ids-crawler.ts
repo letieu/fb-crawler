@@ -1,8 +1,12 @@
-import { Page } from 'puppeteer-core';
+import { Browser, Page } from 'puppeteer-core';
 import { Account, delayRandomTime, initPuppeter, loginFacebook, getPostLinkFromPostId, CrawlResult, getGroupIdFromUrl, convertToGroupLinkDesiredFormat } from './helper';
 import { parsePostIds } from '../parsers/post-ids-parser';
+import 'dotenv/config';
+
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 export type PostIdsResult = string[];
+
 
 // crawl post ids from group, (not page)
 export class PostIdsCrawler {
@@ -28,11 +32,22 @@ export class PostIdsCrawler {
     return this;
   }
 
-  async start(page: Page) {
+  async start() {
     let res: CrawlResult<PostIdsResult>;
     let loginFailed = true;
 
+    let browser: Browser;
+
     try {
+
+      browser = await initPuppeter(
+        this.account,
+        chromeWsEndpoint,
+      )
+
+      const page = await browser.newPage();
+      page.setViewport({ width: 1500, height: 764 });
+
       await loginFacebook(page, this.account);
       loginFailed = false;
 
@@ -45,19 +60,21 @@ export class PostIdsCrawler {
         loginFailed: false,
         data: postIds,
       }
+
+      if (page) await page.close();
     } catch (error) {
       console.log('error when crawling post ids: ');
       console.error(error);
-      console.log('loginFailed: ', loginFailed);
 
       res = {
         success: false,
         loginFailed,
         data: [],
       }
+
+      if (browser) await browser.close();
     } finally {
       console.log('Before close page');
-      await page.close();
       console.log('After close page');
       await delayRandomTime(1000, 3000);
     }

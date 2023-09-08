@@ -1,7 +1,10 @@
-import { Page } from 'puppeteer-core';
+import { Browser, Page } from 'puppeteer-core';
 import { parseComments } from '../parsers/comment-parser';
 import { parsePost } from '../parsers/post-parser';
 import { Account, CrawlResult, convertToPostLinkDesiredFormat, delayRandomTime, ensureLogin, initPuppeter, loginFacebook } from './helper';
+import 'dotenv/config';
+
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_DETAIL;
 
 export type CommentResult = {
   commentId: string;
@@ -40,13 +43,23 @@ export class PostDetailCrawler {
     return this;
   }
 
-  async start(page: Page) {
+  async start() {
+    let browser: Browser;
+
     console.log(`Start crawling post ${this.postUrl} \n`);
 
     let res: CrawlResult<PostDetailResult>;
     let loginFailed = true;
 
     try {
+      browser = await initPuppeter(
+        this.account,
+        chromeWsEndpoint,
+      )
+
+      const page = await browser.newPage();
+      page.setViewport({ width: 1500, height: 764 });
+
       await loginFacebook(page, this.account);
       loginFailed = false;
 
@@ -69,19 +82,18 @@ export class PostDetailCrawler {
           comments
         }
       }
+
+      if (page) await page.close();
     } catch (error) {
-      console.log('error when crawling post comments: ');
+      console.log('error when crawling post: ');
       console.error(error);
-      console.log('loginFailed: ', loginFailed);
       res = {
         success: false,
         loginFailed,
-        data: null
+        data: null,
       };
     } finally {
-      console.log('Before close page');
-      await page.close();
-      console.log('After close page');
+      if (browser) await browser.close();
 
       await delayRandomTime(1000, 3000);
     }
