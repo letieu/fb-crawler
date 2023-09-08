@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ConnectionOptions } from "bullmq";
 import { Account, CrawlResult } from "../crawlers/helper";
 import { PostDetailResult } from "../crawlers/post-comments-crawler";
