@@ -37,8 +37,7 @@ async function testCrawl() {
 }
 
 async function testDb() {
-  const db = new Database(getDbConfig());
-  await db.init();
+  const db = await Database.getInstance();
 
   const posts = await db.getPosts();
   console.log(posts);

@@ -1,6 +1,7 @@
 import * as mysql from 'mysql2/promise';
 import { Account, getPostIdFromUrl } from '../crawlers/helper';
 import { OkPacket, RowDataPacket } from 'mysql2/promise';
+import { getDbConfig } from './helper';
 
 const postLimit = 1000;
 
@@ -36,15 +37,35 @@ export enum PostStatus {
 }
 
 class Database {
-  private dbConnection: mysql.Connection;
+  private static instance: Database;
 
-  constructor(private dbConfig: mysql.ConnectionOptions) { }
+  private pool: mysql.Connection;
 
-  async init() {
-    this.dbConnection = await mysql.createConnection(this.dbConfig);
-    await this.dbConnection.connect();
+  private constructor(private dbConfig: mysql.ConnectionOptions) { }
+
+  private async init() {
+    this.pool = mysql.createPool({
+      ...this.dbConfig,
+      waitForConnections: true,
+      connectionLimit: 10,
+      maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
+      idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0
+    });
+    await this.pool.connect();
 
     console.log('Database initialized');
+  }
+
+  static async getInstance() {
+    if (!Database.instance) {
+      Database.instance = new Database(getDbConfig());
+      await Database.instance.init();
+    }
+
+    return Database.instance;
   }
 
   async savePost(post: Post) {
@@ -52,7 +73,7 @@ class Database {
     const postFbId = getPostIdFromUrl(post.link);
     const values = [post.content, post.link, postFbId];
 
-    const [res] = await this.dbConnection.query<mysql.OkPacket>(query, values);
+    const [res] = await this.pool.query<mysql.OkPacket>(query, values);
     const postDatabaseId = res.insertId;
 
     console.log(`Updated post ${postDatabaseId}`);
@@ -79,7 +100,7 @@ class Database {
     const query = `REPLACE INTO posts (link, fb_id, group_id) VALUES ${placeholdersString}`;
 
     try {
-      const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query, values);
+      const [rows, fields] = await this.pool.query<RowDataPacket[]>(query, values);
       console.log(`Inserted ${postLinks.length} post links`);
     } catch (error) {
       console.error('Error inserting post:', error);
@@ -105,7 +126,7 @@ class Database {
     const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
 
     try {
-      const [rows, fields] = await this.dbConnection.query(query, values);
+      const [rows, fields] = await this.pool.query(query, values);
       console.log(`Inserted ${comments.length} comments`);
     } catch (error) {
       console.error('Error inserting comments:', error);
@@ -118,26 +139,26 @@ class Database {
       INNER JOIN group_page ON posts.group_id = group_page.id
       WHERE posts.status = 1 AND group_page.status = 1;`
 
-    const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
+    const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
     return rows;
   }
 
   async getGroups() {
     const query = 'SELECT * FROM group_page WHERE status = 1';
-    const [rows, fields] = await this.dbConnection.query<RowDataPacket[]>(query);
+    const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
     return rows;
   }
 
   async getPost(postId: string) {
     const query = 'SELECT * FROM posts WHERE id = ?';
-    const [rows, fields] = await this.dbConnection.query(query, [postId]);
+    const [rows, fields] = await this.pool.query(query, [postId]);
     return rows[0];
   }
 
   async getAccounts(): Promise<Account[]> {
     const query = 'SELECT * FROM account WHERE status = 1';
 
-    const [rows, fields] = await this.dbConnection.query(query);
+    const [rows, fields] = await this.pool.query(query);
 
     return (rows as any).map((row) => {
       return {
@@ -151,7 +172,7 @@ class Database {
   async updateAccountStatus(username: string, status: AccountStatus) {
     const query = 'UPDATE account SET status = ? WHERE username = ?';
 
-    const [rows, fields] = await this.dbConnection.query(query, [status, username]);
+    const [rows, fields] = await this.pool.query(query, [status, username]);
 
     return rows;
   }
@@ -176,13 +197,8 @@ class Database {
             MAX(comments.created_at) <= NOW() - INTERVAL ${days} DAY
       )`;
 
-    const [rows, fields] = await this.dbConnection.query<OkPacket>(query);
+    const [rows, fields] = await this.pool.query<OkPacket>(query);
     return rows;
-  }
-
-  async close() {
-    await this.dbConnection.end();
-    console.log('Database closed');
   }
 }
 

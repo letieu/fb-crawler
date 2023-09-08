@@ -11,10 +11,7 @@ const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
 console.log(`Comment limit: ${commentLimit}`);
 
 export async function startPostDetailWorker() {
-  const db = new Database(getDbConfig());
-  await db.init();
-
-  let account = await getNewAccount(db);
+  let account = await getNewAccount();
 
   const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_DETAIL;
 
@@ -47,6 +44,7 @@ export async function startPostDetailWorker() {
 
   async function crawlHandler(job: Job<PostDetailJobData>) {
     const { url, id } = job.data;
+    const db = await Database.getInstance();
 
     let result: PostDetailJobResult;
 
@@ -78,7 +76,7 @@ export async function startPostDetailWorker() {
 
       await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
 
-      account = await getNewAccount(db);
+      account = await getNewAccount();
 
       browser = await initPuppeter(
         account,
@@ -95,7 +93,9 @@ export async function startPostDetailWorker() {
   return worker;
 }
 
-async function getNewAccount(db: Database) {
+async function getNewAccount() {
+  const db = await Database.getInstance();
+
   const accounts = await db.getAccounts();
   if (accounts.length === 0) {
     throw new Error('No account found');
