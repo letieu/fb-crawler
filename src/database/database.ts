@@ -195,6 +195,20 @@ class Database {
     const [rows, fields] = await this.pool.query<OkPacket>(query);
     return rows;
   }
+
+  async getNewAccount() {
+    const db = Database.getInstance();
+
+    const accounts = await db.getAccounts();
+    if (accounts.length === 0) {
+      throw new Error('No account found');
+    }
+
+    const selectedAccount = accounts[0];
+    await db.updateAccountStatus(selectedAccount.username, AccountStatus.IN_USE);
+
+    return selectedAccount;
+  }
 }
 
 export default Database;

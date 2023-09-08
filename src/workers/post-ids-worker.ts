@@ -10,8 +10,10 @@ const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 console.log(`Post limit: ${postLimit}`);
 
+const db = Database.getInstance();
+
 export async function startPostIdWorker() {
-  let account = await getNewAccount();
+  let account = await db.getNewAccount();
 
   const worker = new Worker<PostIdJobData, PostIdJobResult>(
     QueueName.POST_IDS,
@@ -24,8 +26,6 @@ export async function startPostIdWorker() {
 
   async function crawlHandler(job: Job<PostIdJobData>) {
     const { url, id: groupId } = job.data;
-    const db = Database.getInstance();
-
     let browser = await initPuppeter(
       account,
       chromeWsEndpoint,
@@ -46,7 +46,7 @@ export async function startPostIdWorker() {
     } else if (result.loginFailed) {
       console.log('Login failed, trying to get new account');
       await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
-      account = await getNewAccount();
+      account = await db.getNewAccount();
       console.log(`Got new account ${account.username}`);
     }
 
@@ -55,19 +55,4 @@ export async function startPostIdWorker() {
 
   console.log('Post id worker started with account: ', account.username);
   return worker;
-}
-
-async function getNewAccount() {
-  const db = Database.getInstance();
-
-  const accounts = await db.getAccounts();
-  if (accounts.length === 0) {
-    throw new Error('No account found');
-  }
-
-  const selectedAccount = accounts[0];
-
-  await db.updateAccountStatus(selectedAccount.username, AccountStatus.IN_USE);
-
-  return selectedAccount;
 }
