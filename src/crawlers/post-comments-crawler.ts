@@ -48,8 +48,16 @@ export class PostDetailCrawler {
 
     console.log(`Start crawling post ${this.postUrl} \n`);
 
-    let res: CrawlResult<PostDetailResult>;
-    let loginFailed = false;
+    let res: CrawlResult<PostDetailResult> = {
+      success: false,
+      loginFailed: false,
+      data: {
+        link: this.postUrl,
+        content: null,
+        userId: null,
+        comments: []
+      }
+    }
 
     try {
       browser = await initPuppeter(
@@ -60,43 +68,31 @@ export class PostDetailCrawler {
       const page = await browser.newPage();
       page.setViewport({ width: 1500, height: 764 });
 
-      await loginFacebook(page, this.account).catch(() => {
-        loginFailed = true;
-      });
+      const loginSuccess = await loginFacebook(page, this.account)
 
-      const url = convertToPostLinkDesiredFormat(this.postUrl);
-      await page.goto(url, { waitUntil: "networkidle2" });
+      if (loginSuccess) {
+        const url = convertToPostLinkDesiredFormat(this.postUrl);
+        await page.goto(url, { waitUntil: "networkidle2" });
 
-      await delayRandomTime(1000, 1500);
+        await delayRandomTime(1000, 1500);
 
-      const post = await this.getPostContent(page);
+        const post = await this.getPostContent(page);
 
-      const comments = await this.getComments(page);
+        res.data.comments = await this.getComments(page);
 
-      res = {
-        success: true,
-        loginFailed,
-        data: {
-          link: this.postUrl,
-          content: post.content,
-          userId: post.uid,
-          comments
-        }
+        res.data.content = post.content;
+        res.data.userId = post.uid;
+        res.success = true;
+      } else {
+        res.loginFailed = true;
       }
 
       if (page) await page.close();
     } catch (error) {
       console.log('error when crawling post: ');
       console.error(error);
-
-      res = {
-        success: false,
-        loginFailed,
-        data: null,
-      };
     } finally {
       if (browser) await browser.close();
-
       await delayRandomTime(1000, 3000);
     }
 

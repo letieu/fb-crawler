@@ -6,14 +6,14 @@ import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostDetailCrawler } from './crawlers/post-comments-crawler';
 
 const account = {
-  username: "100062953837045",
-  password: "haihau2029",
-  secretCode: "DXLXICOMNBHMXXO2UMPKIXTEHFJPJLOC"
+  username: "100065050175809",
+  password: "123@Xuanzhi",
+  secretCode: "WMK46GXZP7EWDMARJNMAN2TGGH362XRG"
 }
 
 async function testCrawl() {
 
-  const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/581509213010882/posts/1029138028247996/");
+  const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/115360783883396/posts/616789723740497/");
 
   const result = await postDetailCrawler
     .setLimit(10)

@@ -46,55 +46,66 @@ export async function initPuppeter(account?: Account, endpoint: string = '', max
 }
 
 export async function loginFacebook(page: Page, account: Account) {
-  await page.goto(config.base_url, { waitUntil: "networkidle2" });
+  try {
+    await page.goto(config.base_url, { waitUntil: "networkidle2" });
 
-  const createPostButton = await page.$(config.create_post_button);
-  if (createPostButton) {
-    console.log(`Already logged in with account ${account.username}`);
-    return;
-  }
+    const createPostButton = await page.$(config.create_post_button);
+    if (createPostButton) {
+      console.log(`Already logged in with account ${account.username}`);
+      return true;
+    }
 
-  await page.waitForSelector(config.username_field, {
-    timeout: config.response_timeout,
-  });
-  await page.type(config.username_field, account.username, { delay: 50 });
-  await page.type(config.password_field, account.password, { delay: 50 });
-  page.click(config.login_button);
+    await page.waitForSelector(config.username_field, {
+      timeout: config.response_timeout,
+    });
+    await page.type(config.username_field, account.username, { delay: 50 });
+    await page.type(config.password_field, account.password, { delay: 50 });
+    page.click(config.login_button);
 
-  await page.waitForNavigation({ waitUntil: "networkidle2" });
-  await delayRandomTime(1000, 1500);
+    await page.waitForNavigation({ waitUntil: "networkidle2" });
+    await delayRandomTime(1000, 1500);
 
-  if (page.url().includes("login")) {
-    console.log(`Login failed with account ${account.username}`);
-    return;
-  }
+    if (page.url().includes("login")) {
+      console.log(`Login failed with account ${account.username}`);
+      return true;
+    }
 
-  if (page.url().includes("checkpoint") && !page.url().includes("login/checkpoint")) {
-    // if hoave config.code_field => 2fa
-    const codeField = await page.$(config.code_field);
+    if (page.url().includes("checkpoint") && !page.url().includes("login/checkpoint")) {
+      // if hoave config.code_field => 2fa
+      const codeField = await page.$(config.code_field);
 
-    if (codeField) {
-      console.log('Need 2FA code');
-      const code = get2fa(account.secretCode);
+      if (codeField) {
+        console.log('Need 2FA code');
+        const code = get2fa(account.secretCode);
 
-      await page.type(config.code_field, code, { delay: 50 });
+        await page.type(config.code_field, code, { delay: 50 });
+        page.click(config.confirm_code_button);
+
+        await page.waitForNavigation({ waitUntil: "networkidle2" });
+        await delayRandomTime(1000, 1500);
+      } else {
+        throw new Error('Need 2FA code but not found code field');
+      }
+    }
+
+    if (page.url().includes("login/checkpoint")) {
       page.click(config.confirm_code_button);
 
       await page.waitForNavigation({ waitUntil: "networkidle2" });
       await delayRandomTime(1000, 1500);
-    } else {
-      throw new Error('Need 2FA code but not found code field');
     }
+
+    const createPostButtonAfterLogin = await page.$(config.create_post_button);
+
+    if (createPostButtonAfterLogin) {
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Login error", error);
+    return false;
   }
-
-  if (page.url().includes("login/checkpoint")) {
-    page.click(config.confirm_code_button);
-
-    await page.waitForNavigation({ waitUntil: "networkidle2" });
-    await delayRandomTime(1000, 1500);
-  }
-
-  console.log(`Login success with account ${account.username}`);
 }
 
 export async function ensureLogin(page: Page, account: Account) {

@@ -33,8 +33,11 @@ export class PostIdsCrawler {
   }
 
   async start() {
-    let res: CrawlResult<PostIdsResult>;
-    let loginFailed = false;
+    let res: CrawlResult<PostIdsResult> = {
+      success: false,
+      loginFailed: false,
+      data: [],
+    }
 
     let browser: Browser;
 
@@ -47,36 +50,25 @@ export class PostIdsCrawler {
       const page = await browser.newPage();
       page.setViewport({ width: 1500, height: 764 });
 
-      await loginFacebook(page, this.account).catch(() => {
-        loginFailed = true;
-      });
+      const loginSuccess = await loginFacebook(page, this.account);
 
-      const url = convertToGroupLinkDesiredFormat(this.url);
-      await page.goto(url, { waitUntil: "networkidle2" });
+      if (loginSuccess) {
+        const url = convertToGroupLinkDesiredFormat(this.url);
+        await page.goto(url, { waitUntil: "networkidle2" });
 
-      const postIds = await this.getPostIds(page);
-      res = {
-        success: true,
-        loginFailed: false,
-        data: postIds,
+        const postIds = await this.getPostIds(page);
+        res.data = postIds;
+        res.success = true;
+      } else {
+        res.loginFailed = true;
       }
 
       if (page) await page.close();
     } catch (error) {
       console.log('error when crawling post ids: ');
       console.error(error);
-
-      res = {
-        success: false,
-        loginFailed,
-        data: [],
-      }
-
     } finally {
-      if (browser) {
-        await browser.close();
-      }
-
+      if (browser) await browser.close();
       await delayRandomTime(1000, 3000);
     }
 
