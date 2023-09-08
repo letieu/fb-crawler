@@ -2,23 +2,16 @@ import 'dotenv/config';
 import { Job, Worker } from 'bullmq';
 import { PostIdsCrawler, PostIdsResult } from '../crawlers/post-ids-crawler';
 import Database, { AccountStatus } from '../database/database';
-import { getDbConfig } from '../database/helper';
 import { initPuppeter } from '../crawlers/helper';
 import { PostIdJobData, PostIdJobResult, QueueName, getRedisConnection } from './helper';
 
 const postLimit = parseInt(process.env.POST_IDS_LIMIT || '20');
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 console.log(`Post limit: ${postLimit}`);
 
 export async function startPostIdWorker() {
   let account = await getNewAccount();
-
-  const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
-
-  let browser = await initPuppeter(
-    account,
-    chromeWsEndpoint,
-  );
 
   const worker = new Worker<PostIdJobData, PostIdJobResult>(
     QueueName.POST_IDS,
@@ -29,56 +22,32 @@ export async function startPostIdWorker() {
     }
   );
 
-  worker.on('failed', (job, err) => {
-    console.log(`Job ${job.id} failed with error: \n`);
-    console.error(err);
-  });
-
-  worker.on('error', (err) => {
-    console.log(`Global error: ${err}`);
-  });
-
-  worker.on('completed', async (job) => {
-    console.log(`Job ${job.id} completed`);
-  });
-
   async function crawlHandler(job: Job<PostIdJobData>) {
     const { url, id: groupId } = job.data;
-    const db = await Database.getInstance();
+    const db = Database.getInstance();
 
-    let result: PostIdJobResult;
-
+    let browser = await initPuppeter(
+      account,
+      chromeWsEndpoint,
+    );
     const page = await browser.newPage();
     page.setViewport({ width: 1500, height: 764 });
 
     const postIdCrawler = new PostIdsCrawler(url);
-    result = await postIdCrawler
+    const result = await postIdCrawler
       .setLimit(postLimit)
       .setAccount(account)
       .start(page);
 
+    await browser.close();
+
     if (result.success) {
       db.savePostLinks(result.data as PostIdsResult, groupId);
-    }
-
-    const { loginFailed } = result;
-
-    if (loginFailed) {
+    } else if (result.loginFailed) {
       console.log('Login failed, trying to get new account');
-      await browser.close();
-
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // wait for 5s
-
-      await db.updateAccountStatus(account.username, 2);
-
+      await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
       account = await getNewAccount();
-
-      browser = await initPuppeter(
-        account,
-        chromeWsEndpoint,
-      );
-
-      console.log(`Got new account ${account.username}, starting new browser`);
+      console.log(`Got new account ${account.username}`);
     }
 
     return result;
@@ -89,7 +58,7 @@ export async function startPostIdWorker() {
 }
 
 async function getNewAccount() {
-  const db = await Database.getInstance();
+  const db = Database.getInstance();
 
   const accounts = await db.getAccounts();
   if (accounts.length === 0) {
