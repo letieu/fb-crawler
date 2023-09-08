@@ -20,7 +20,7 @@ services:
       - redis
     networks:
       - fb-crawler-network
-    entrypoint: ["npm", "start-id-worker"]
+    entrypoint: ["npm", "run", "start-id-worker"]
 
   detail-worker:
     build:
@@ -33,7 +33,7 @@ services:
       - redis
     networks:
       - fb-crawler-network
-    entrypoint: ["npm", "start-detail-worker"]
+    entrypoint: ["npm", "run", "start-detail-worker"]
 
   board:
     build:
@@ -48,7 +48,7 @@ services:
       - fb-crawler-network
     ports:
       - "3123:3123"
-    entrypoint: ["npm", "start-board"]
+    entrypoint: ["npm", "run", "start-board"]
 
   chrome1:
     image: browserless/chrome
