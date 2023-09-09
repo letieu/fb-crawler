@@ -69,6 +69,7 @@ export class PostDetailCrawler {
       page.setViewport({ width: 1500, height: 764 });
 
       const loginSuccess = await loginFacebook(page, this.account)
+      console.log('loginSuccess', loginSuccess);
 
       if (loginSuccess) {
         const url = convertToPostLinkDesiredFormat(this.postUrl);
@@ -86,15 +87,15 @@ export class PostDetailCrawler {
       } else {
         res.loginFailed = true;
       }
-
-      if (page) await page.close();
     } catch (error) {
       console.log('error when crawling post: ');
       console.error(error);
     } finally {
-      if (browser) await browser.close();
-      await delayRandomTime(1000, 3000);
+      if (browser) browser.close();
+      await delayRandomTime(3000, 8000);
     }
+
+    console.log(`Finish`, res);
 
     return res;
   }

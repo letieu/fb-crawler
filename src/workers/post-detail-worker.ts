@@ -31,6 +31,8 @@ export async function startPostDetailWorker() {
       .setAccount(account)
       .start()
 
+    console.log('Post detail result: ', result);
+
     if (result.success) {
       const data = result.data as PostDetailResult;
       await db.savePost({
