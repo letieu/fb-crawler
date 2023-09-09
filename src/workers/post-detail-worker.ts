@@ -33,7 +33,7 @@ export async function startPostDetailWorker() {
 
     if (result.success) {
       const data = result.data as PostDetailResult;
-      db.savePost({
+      await db.savePost({
         content: data.content,
         link: data.link,
         comments: data.comments,

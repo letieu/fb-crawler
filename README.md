@@ -19,10 +19,8 @@ docker-compose up -d
 docker-compose logs chrome1 -f
 docker-compose logs chrome2 -f
 
-# logs post id crawl
+# logs worker
 docker-compose logs id-worker -f
-
-# logs post detail crawl
 docker-compose logs detail-worker -f
 
 # produce job

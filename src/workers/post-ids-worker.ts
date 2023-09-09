@@ -32,7 +32,7 @@ export async function startPostIdWorker() {
       .start();
 
     if (result.success) {
-      db.savePostLinks(result.data as PostIdsResult, groupId);
+      await db.savePostLinks(result.data as PostIdsResult, groupId);
     } else if (result.loginFailed) {
       console.log('Login failed, trying to get new account');
       await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
