@@ -62,14 +62,12 @@ export class PostIdsCrawler {
       } else {
         res.loginFailed = true;
       }
-
-      if (page) await page.close();
     } catch (error) {
       console.log('error when crawling post ids: ');
       console.error(error);
     } finally {
-      if (browser) await browser.close();
-      await delayRandomTime(1000, 3000);
+      if (browser) browser.close();
+      await delayRandomTime(3000, 8000);
     }
 
     return res;

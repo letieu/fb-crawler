@@ -64,9 +64,10 @@ class Database {
   }
 
   async savePost(post: Post) {
-    const query = 'REPLACE INTO posts (title, link, fb_id) VALUES (?, ?, ?)';
+    const query = 'UPDATE posts SET title = ? WHERE fb_id = ?';
     const postFbId = getPostIdFromUrl(post.link);
-    const values = [post.content, post.link, postFbId];
+
+    const values = [post.content, postFbId];
 
     const [res] = await this.pool.query<mysql.OkPacket>(query, values);
     const postDatabaseId = res.insertId;
