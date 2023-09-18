@@ -28,11 +28,15 @@ async function testCrawl() {
 async function testDb() {
   const db = await Database.getInstance();
 
-      await db.savePost({
-        content: "test 1",
-        link: "https://www.facebook.com/groups/988092548658730/posts/1462652164536097/",
-        comments: [],
-      });
+  // await db.savePost({
+  //   content: "test 1",
+  //   link: "https://www.facebook.com/groups/988092548658730/posts/1462652164536097/",
+  //   comments: [],
+  // });
+  const res = await db.getPosts()
+
+  console.log(res[0]);
+  console.log(res.pop())
 }
 
 // testTrigger();

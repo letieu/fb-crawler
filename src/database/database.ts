@@ -131,10 +131,12 @@ class Database {
   }
 
   async getPosts() {
+    // Order by post have empty title first
     const query = `SELECT posts.*
       FROM posts
       INNER JOIN group_page ON posts.group_id = group_page.id
-      WHERE posts.status = 1 AND group_page.status = 1;`
+      WHERE posts.status = 1 AND group_page.status = 1
+      ORDER BY posts.title = '' DESC`;
 
     const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
     return rows;
