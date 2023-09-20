@@ -65,6 +65,8 @@ services:
       - fb-crawler-network
     environment:
       - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3111:3111
 
 networks:
   fb-crawler-network:

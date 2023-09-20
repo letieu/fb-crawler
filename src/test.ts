@@ -6,9 +6,9 @@ import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostDetailCrawler } from './crawlers/post-comments-crawler';
 
 const account = {
-  username: "100084156253271",
+  username: "100052351592150",
   password: "123@Xuanzhi",
-  secretCode: "GMZJCGFSUNU4GSABUW6ZLVTJALKU5BAR"
+  secretCode: "HQBON4P3Y4YCC6LY63T6HNITVEWZCT32"
 }
 
 async function testCrawl() {
