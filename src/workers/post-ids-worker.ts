@@ -38,7 +38,13 @@ export async function startPostIdWorker() {
       await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
       account = await db.getNewAccount();
       console.log(`Got new account ${account.username}`);
+
+      // Wait 10 seconds after getting new account
+      await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
     }
+
+    // Wait 10 seconds before processing next job
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
 
     return result;
   }

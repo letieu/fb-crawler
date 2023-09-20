@@ -58,8 +58,8 @@ export async function loginFacebook(page: Page, account: Account) {
     await page.waitForSelector(config.username_field, {
       timeout: config.response_timeout,
     });
-    await page.type(config.username_field, account.username, { delay: 50 });
-    await page.type(config.password_field, account.password, { delay: 50 });
+    await page.type(config.username_field, account.username, { delay: 250 });
+    await page.type(config.password_field, account.password, { delay: 300 });
     page.click(config.login_button);
 
     await page.waitForNavigation({ waitUntil: "networkidle2" });
@@ -78,7 +78,7 @@ export async function loginFacebook(page: Page, account: Account) {
         console.log('Need 2FA code');
         const code = get2fa(account.secretCode);
 
-        await page.type(config.code_field, code, { delay: 50 });
+        await page.type(config.code_field, code, { delay: 250 });
         page.click(config.confirm_code_button);
 
         await page.waitForNavigation({ waitUntil: "networkidle2" });
@@ -199,5 +199,5 @@ export async function close(browser: Browser) {
 }
 
 function getBrowserEndpointWithParams(endPoint: string, profileName: string) {
-  return `${endPoint}?--user-data-dir=~/profiles/${profileName}&--window-size=1500,764&headless=false&--proxy-server=118.69.134.0`;
+  return `${endPoint}?--user-data-dir=~/profiles/${profileName}&--window-size=1500,764&headless=false&--proxy-server=https://183.89.9.20:4153`;
 }
