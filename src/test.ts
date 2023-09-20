@@ -6,14 +6,14 @@ import { PostIdsCrawler } from './crawlers/post-ids-crawler';
 import { PostDetailCrawler } from './crawlers/post-comments-crawler';
 
 const account = {
-  username: "100065050175809",
+  username: "100084156253271",
   password: "123@Xuanzhi",
-  secretCode: "WMK46GXZP7EWDMARJNMAN2TGGH362XRG"
+  secretCode: "GMZJCGFSUNU4GSABUW6ZLVTJALKU5BAR"
 }
 
 async function testCrawl() {
 
-  const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/115360783883396/posts/616789723740497/");
+  const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/362261550867819/posts/1756306044796689/");
 
   const result = await postDetailCrawler
     .setLimit(10)
@@ -40,5 +40,5 @@ async function testDb() {
 }
 
 // testTrigger();
-// testCrawl();
-testDb();
+testCrawl();
+// testDb();

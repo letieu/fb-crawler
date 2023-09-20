@@ -67,7 +67,7 @@ export async function loginFacebook(page: Page, account: Account) {
 
     if (page.url().includes("login")) {
       console.log(`Login failed with account ${account.username}`);
-      return true;
+      return false;
     }
 
     if (page.url().includes("checkpoint") && !page.url().includes("login/checkpoint")) {
