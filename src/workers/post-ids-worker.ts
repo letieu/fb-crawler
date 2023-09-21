@@ -43,7 +43,7 @@ export async function startPostIdWorker() {
       await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
     }
 
-    // Wait 10 seconds before processing next job
+    // Wait 1 seconds before processing next job
     await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
 
     return result;

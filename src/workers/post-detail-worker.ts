@@ -50,8 +50,8 @@ export async function startPostDetailWorker() {
       await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
     }
 
-    // Wait 10 seconds before processing next job
-    await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
+    // Wait 1 seconds before processing next job
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return result;
   }

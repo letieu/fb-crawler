@@ -57,6 +57,8 @@ services:
       - fb-crawler-network
     environment:
       - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3111:3000
 
   chrome2:
     image: browserless/chrome
@@ -66,7 +68,7 @@ services:
     environment:
       - CONNECTION_TIMEOUT=-1
     ports:
-      - 3111:3000
+      - 3222:3000
 
 networks:
   fb-crawler-network:
