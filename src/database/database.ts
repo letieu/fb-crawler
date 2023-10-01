@@ -120,7 +120,7 @@ class Database {
 
     const placeholdersString = placeholders.join(', ');
 
-    const query = `REPLACE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
+    const query = `INSERT IGNORE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.pool.query(query, values);
