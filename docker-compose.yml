@@ -30,7 +30,7 @@ services:
     env_file:
       - .env
     environment:
-      - CHROME_WS_ENDPOINT_DETAIL: ws://chrome2:3000
+      - CHROME_WS_ENDPOINT_DETAIL: "ws://chrome2:3000"
     depends_on:
       - redis
     networks:
@@ -45,7 +45,7 @@ services:
     env_file:
       - .env
     environment:
-      - CHROME_WS_ENDPOINT_DETAIL: ws://chrome3:3000
+      - CHROME_WS_ENDPOINT_DETAIL: "ws://chrome3:3000"
     depends_on:
       - redis
     networks:
