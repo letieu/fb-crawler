@@ -29,6 +29,23 @@ services:
     container_name: detail-worker
     env_file:
       - .env
+    environment:
+      - CHROME_WS_ENDPOINT_DETAIL: ws://chrome2:3000
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+    entrypoint: ["npm", "run", "start-detail-worker"]
+
+  detail-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: detail-worker-2
+    env_file:
+      - .env
+    environment:
+      - CHROME_WS_ENDPOINT_DETAIL: ws://chrome3:3000
     depends_on:
       - redis
     networks:
@@ -69,6 +86,16 @@ services:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3222:3000
+
+  chrome3:
+    image: browserless/chrome
+    container_name: fb-crawler-chrome3
+    networks:
+      - fb-crawler-network
+    environment:
+      - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3333:3000
 
 networks:
   fb-crawler-network:
