@@ -3,8 +3,6 @@ import { Account, getPostIdFromUrl } from '../crawlers/helper';
 import { OkPacket, RowDataPacket } from 'mysql2/promise';
 import { getDbConfig } from './helper';
 
-const postLimit = 50;
-
 type Comment = {
   commentId: string;
   name: string;
@@ -134,9 +132,8 @@ class Database {
     const query = `SELECT posts.*
       FROM posts
       INNER JOIN group_page ON posts.group_id = group_page.id
-      WHERE posts.status = 1 AND group_page.status = 1
+      WHERE posts.status = 1 AND group_page.status = 1 AND created_at > NOW() - INTERVAL 1 DAY
       ORDER BY posts.title = '', posts.created_at DESC
-      LIMIT ${postLimit}
       `;
 
     const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
