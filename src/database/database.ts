@@ -3,7 +3,7 @@ import { Account, getPostIdFromUrl } from '../crawlers/helper';
 import { OkPacket, RowDataPacket } from 'mysql2/promise';
 import { getDbConfig } from './helper';
 
-const postLimit = 1000;
+const postLimit = 50;
 
 type Comment = {
   commentId: string;
@@ -131,12 +131,13 @@ class Database {
   }
 
   async getPosts() {
-    // Order by post have empty title first
     const query = `SELECT posts.*
       FROM posts
       INNER JOIN group_page ON posts.group_id = group_page.id
       WHERE posts.status = 1 AND group_page.status = 1
-      ORDER BY posts.title = '' DESC`;
+      ORDER BY posts.title = '', posts.created_at DESC
+      LIMIT ${postLimit}
+      `;
 
     const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
     return rows;
