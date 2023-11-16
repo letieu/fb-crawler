@@ -132,7 +132,7 @@ class Database {
     const query = `SELECT posts.*
       FROM posts
       INNER JOIN group_page ON posts.group_id = group_page.id
-      WHERE posts.status = 1 AND group_page.status = 1 AND created_at > NOW() - INTERVAL 1 DAY
+      WHERE posts.status = 1 AND group_page.status = 1 AND posts.created_at > NOW() - INTERVAL 1 DAY
       ORDER BY posts.title = '', posts.created_at DESC
       `;
 
