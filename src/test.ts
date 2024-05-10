@@ -1,44 +1,23 @@
-import 'dotenv/config';
-import { initPuppeter } from './crawlers/helper';
-import Database from './database/database';
-import { getDbConfig } from './database/helper';
-import { PostIdsCrawler } from './crawlers/post-ids-crawler';
-import { PostDetailCrawler } from './crawlers/post-comments-crawler';
+import "dotenv/config";
+import { LikePageCrawler } from "./crawlers/like-page-crawler";
 
 const account = {
-  username: "100052351592150",
-  password: "123@Xuanzhi",
-  secretCode: "HQBON4P3Y4YCC6LY63T6HNITVEWZCT32"
-}
+  username: "61554726489320",
+  password: "Ongvang@999",
+  secretCode: "QRGGX6JFOA2IOJVYIQA4T6SC3WI5IT4X",
+};
 
 async function testCrawl() {
-
-  const postDetailCrawler = new PostDetailCrawler("https://www.facebook.com/groups/362261550867819/posts/1756306044796689/");
-
-  const result = await postDetailCrawler
-    .setLimit(10)
-    .setAccount(account)
-    .start();
+  const liker = new LikePageCrawler();
+  liker.setAccount(account);
+  const result = await liker.start([
+    "https://www.facebook.com/aibatvietnam",
+    "https://www.facebook.com/banhangamazon"
+  ]);
 
   console.log(result);
-
-  await new Promise((resolve) => setTimeout(resolve, 50000));
 }
 
-async function testDb() {
-  const db = await Database.getInstance();
-
-  // await db.savePost({
-  //   content: "test 1",
-  //   link: "https://www.facebook.com/groups/988092548658730/posts/1462652164536097/",
-  //   comments: [],
-  // });
-  const res = await db.getPosts()
-
-  console.log(res[0]);
-  console.log(res.pop())
-}
-
-// testTrigger();
 testCrawl();
-// testDb();
+
+//console.log(get2fa(account.secretCode))

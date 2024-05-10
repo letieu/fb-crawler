@@ -1,16 +1,16 @@
-version: '3.8'
-
+version: "3.8"
 services:
-  # mysql:
-  #   image: mariadb
-  #   container_name: fb-crawler-mysql
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - "${MYSQL_PORT}:${MYSQL_PORT}"
-  #   volumes:
-  #     - ./data/mysql_data:/var/lib/mysql
-  #
+  mysql:
+    image: mariadb
+    container_name: fb-crawler-mysql
+    env_file:
+      - .env
+    ports:
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+    volumes:
+      - ./data/mysql_data:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: secret
   # phpmyadmin:
   #   image: phpmyadmin/phpmyadmin
   #   container_name: fb-crawler-phpmyadmin
@@ -20,7 +20,6 @@ services:
   #     PMA_PASSWORD: ${MYSQL_PASSWORD}
   #   ports:
   #     - "8080:80"
-
   redis:
     image: bitnami/redis:7.0
     container_name: fb-crawler-redis
@@ -29,20 +28,18 @@ services:
     env_file:
       - .env
     ports:
-      - '${REDIS_PORT}:6379'
+      - ${REDIS_PORT}:6379
     environment:
-      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
-
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
   chrome1:
     image: browserless/chrome
     container_name: fb-crawler-chrome1
     networks:
       - fb-crawler-network
     ports:
-      - "3111:3000"
+      - 3111:3000
     environment:
       - CONNECTION_TIMEOUT=-1
-
 networks:
   fb-crawler-network:
     driver: bridge

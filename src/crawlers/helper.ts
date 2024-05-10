@@ -72,14 +72,13 @@ export async function loginFacebook(page: Page, account: Account) {
       return true;
     }
 
-    const selectAccountButton = await page.$("input[type=submit]");
-    if (selectAccountButton) {
+    const uid = await page.$("input[name=uid]");
+    if (uid) {
       await page.click("input[type=submit]");
 
       await page.waitForSelector(config.password_field, {
         timeout: config.response_timeout,
       });
-
       await page.type(config.password_field, account.password, { delay: 300 });
       page.click("input[type=submit]");
     } else {
