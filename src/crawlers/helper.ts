@@ -6,24 +6,36 @@ export type Account = {
   username: string;
   password: string;
   secretCode: string;
-}
+};
 
 export type CrawlResult<T> = {
   success: boolean;
   loginFailed: boolean;
   data: T;
-}
+};
 
-export async function initPuppeter(account?: Account, endpoint: string = '', maxRetries: number = 3) {
+export async function initPuppeter(
+  account?: Account,
+  endpoint: string = "",
+  maxRetries: number = 3
+) {
   let browser: Browser | null = null;
   const profileName = `_${account.username}`;
 
   for (let retryCount = 1; retryCount <= maxRetries; retryCount++) {
     try {
-      console.log('Attempt', retryCount, 'to use browser endpoint', getBrowserEndpointWithParams(endpoint, profileName));
+      console.log(
+        "Attempt",
+        retryCount,
+        "to use browser endpoint",
+        getBrowserEndpointWithParams(endpoint, profileName)
+      );
 
       browser = await puppeteer.connect({
-        browserWSEndpoint: getBrowserEndpointWithParams(endpoint, account.username),
+        browserWSEndpoint: getBrowserEndpointWithParams(
+          endpoint,
+          account.username
+        ),
       });
 
       if (browser) {
@@ -36,13 +48,18 @@ export async function initPuppeter(account?: Account, endpoint: string = '', max
         return browser; // Success, return the browser
       }
     } catch (error) {
-      console.error('Error initializing browser on attempt', retryCount, ':', error);
+      console.error(
+        "Error initializing browser on attempt",
+        retryCount,
+        ":",
+        error
+      );
     }
 
     await delayRandomTime(2000, 8000);
   }
 
-  throw new Error('Failed to initialize browser after multiple retries');
+  throw new Error("Failed to initialize browser after multiple retries");
 }
 
 export async function loginFacebook(page: Page, account: Account) {
@@ -55,12 +72,24 @@ export async function loginFacebook(page: Page, account: Account) {
       return true;
     }
 
-    await page.waitForSelector(config.username_field, {
-      timeout: config.response_timeout,
-    });
-    await page.type(config.username_field, account.username, { delay: 250 });
-    await page.type(config.password_field, account.password, { delay: 300 });
-    page.click(config.login_button);
+    const selectAccountButton = await page.$("input[type=submit]");
+    if (selectAccountButton) {
+      await page.click("input[type=submit]");
+
+      await page.waitForSelector(config.password_field, {
+        timeout: config.response_timeout,
+      });
+
+      await page.type(config.password_field, account.password, { delay: 300 });
+      page.click("input[type=submit]");
+    } else {
+      await page.waitForSelector(config.username_field, {
+        timeout: config.response_timeout,
+      });
+      await page.type(config.username_field, account.username, { delay: 250 });
+      await page.type(config.password_field, account.password, { delay: 300 });
+      page.click(config.login_button);
+    }
 
     await page.waitForNavigation({ waitUntil: "networkidle2" });
     await delayRandomTime(1000, 1500);
@@ -70,12 +99,15 @@ export async function loginFacebook(page: Page, account: Account) {
       return false;
     }
 
-    if (page.url().includes("checkpoint") && !page.url().includes("login/checkpoint")) {
+    if (
+      page.url().includes("checkpoint") &&
+      !page.url().includes("login/checkpoint")
+    ) {
       // if hoave config.code_field => 2fa
       const codeField = await page.$(config.code_field);
 
       if (codeField) {
-        console.log('Need 2FA code');
+        console.log("Need 2FA code");
         const code = get2fa(account.secretCode);
 
         await page.type(config.code_field, code, { delay: 250 });
@@ -84,7 +116,7 @@ export async function loginFacebook(page: Page, account: Account) {
         await page.waitForNavigation({ waitUntil: "networkidle2" });
         await delayRandomTime(1000, 1500);
       } else {
-        throw new Error('Need 2FA code but not found code field');
+        throw new Error("Need 2FA code but not found code field");
       }
     }
 
@@ -126,9 +158,15 @@ export function get2fa(secretCode: string) {
 }
 
 export function convertToPostLinkDesiredFormat(url) {
-  const matchesType1 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\?.*multi_permalinks=([\w\-]+)/i);
-  const matchesType2 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/posts\/([\w\-]+)/i);
-  const matchesType3 = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/?([\w\-]+)/i);
+  const matchesType1 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\?.*multi_permalinks=([\w\-]+)/i
+  );
+  const matchesType2 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/posts\/([\w\-]+)/i
+  );
+  const matchesType3 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\/?([\w\-]+)/i
+  );
 
   let groupId, postId;
 
@@ -142,20 +180,21 @@ export function convertToPostLinkDesiredFormat(url) {
     groupId = matchesType3[1];
     postId = matchesType3[2];
   } else {
-    return url.replace('www', 'mbasic');
+    return url.replace("www", "mbasic");
   }
 
   return `https://mbasic.facebook.com/groups/${groupId}/posts/${postId}/`;
 }
 
 export function convertToGroupLinkDesiredFormat(url: string) {
-  const matches = url.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i);
+  const matches = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i
+  );
   if (matches) {
     return `https://mbasic.facebook.com/groups/${matches[1]}/`;
   }
-  return url.replace('www', 'mbasic');
+  return url.replace("www", "mbasic");
 }
-
 
 export function getGroupLink(id: string) {
   return `https://mbasic.facebook.com/groups/${id}/`;
@@ -174,7 +213,9 @@ export function getPostLinkFromPostId(groupId, postId) {
 }
 
 export function getGroupIdFromUrl(groupUrl) {
-  const matches = groupUrl.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i);
+  const matches = groupUrl.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)/i
+  );
   if (matches) {
     return matches[1];
   }
@@ -182,7 +223,9 @@ export function getGroupIdFromUrl(groupUrl) {
 }
 
 export function getPostIdFromUrl(postUrl) {
-  const matches = postUrl.match(/(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/[\w\-]+\/posts\/([\w\-]+)/i);
+  const matches = postUrl.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/[\w\-]+\/posts\/([\w\-]+)/i
+  );
   if (matches) {
     return matches[1];
   }
@@ -190,7 +233,7 @@ export function getPostIdFromUrl(postUrl) {
 }
 
 export async function close(browser: Browser) {
-  if (process.env.DEBUG === 'true') {
+  if (process.env.DEBUG === "true") {
     // do not close browser
     return;
   }
