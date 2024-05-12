@@ -243,3 +243,11 @@ export async function close(browser: Browser) {
 function getBrowserEndpointWithParams(endPoint: string, profileName: string) {
   return `${endPoint}?--user-data-dir=~/profiles/${profileName}&--window-size=1500,764&headless=false`;
 }
+
+export function findAncestor(el: any, sel: string) {
+  while (
+    (el = el.parentElement) &&
+    !(el.matches || el.matchesSelector).call(el, sel)
+  );
+  return el;
+}
