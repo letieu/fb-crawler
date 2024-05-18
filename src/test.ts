@@ -1,6 +1,7 @@
 import "dotenv/config";
-import { LikePageCrawler } from "./crawlers/like-page-crawler";
 import { AdsIdsCrawler } from "./crawlers/ads-ids-crawler";
+import { PostDetailCrawler } from "./crawlers/post-comments-crawler";
+import { AdsDetailCrawler } from "./crawlers/ads-comments-crawler";
 
 const account = {
   username: "100074448351348",
@@ -17,7 +18,9 @@ async function testCrawl() {
   //]);
   //console.log(res)
 
-  const crawler = new AdsIdsCrawler();
+  const crawler = new AdsDetailCrawler(
+    "https://www.facebook.com/61555737450715/posts/122143842560191248"
+  );
   crawler.setAccount(account);
   const result = await crawler.start();
 

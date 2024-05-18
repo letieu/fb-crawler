@@ -7,7 +7,6 @@ import {
   convertToPagePostLinkDesiredFormat,
   convertToGroupPostLinkDesiredFormat,
   delayRandomTime,
-  ensureLogin,
   initPuppeter,
   loginFacebook,
 } from "./helper";
@@ -32,7 +31,7 @@ export type PostDetailResult = {
 };
 
 // crawl post comments and post content
-export class PostDetailCrawler {
+export class AdsDetailCrawler {
   postUrl: string;
 
   account: Account;
@@ -78,7 +77,7 @@ export class PostDetailCrawler {
       console.log("loginSuccess", loginSuccess);
 
       if (loginSuccess) {
-        const url = convertToGroupPostLinkDesiredFormat(this.postUrl);
+        const url = convertToPagePostLinkDesiredFormat(this.postUrl);
 
         await page.goto(url, { waitUntil: "networkidle2" });
 
@@ -139,9 +138,11 @@ export class PostDetailCrawler {
         });
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const link = await page.$eval(loadMoreSelector, (el) =>
-          el.getAttribute("href")
-        );
+        const link = await page.$eval(loadMoreSelector, (el) => {
+          const href = el.getAttribute("href");
+          const origin = location.origin;
+          return origin + href
+        });
 
         await page.goto(link, { waitUntil: "networkidle2" });
       } else {

@@ -156,7 +156,7 @@ export function get2fa(secretCode: string) {
   return token;
 }
 
-export function convertToPostLinkDesiredFormat(url) {
+export function convertToGroupPostLinkDesiredFormat(url: string) {
   const matchesType1 = url.match(
     /(?:https?:\/\/)?(?:www\.)?facebook\.com\/groups\/([\w\-]+)\?.*multi_permalinks=([\w\-]+)/i
   );
@@ -183,6 +183,35 @@ export function convertToPostLinkDesiredFormat(url) {
   }
 
   return `https://mbasic.facebook.com/groups/${groupId}/posts/${postId}/`;
+}
+
+export function convertToPagePostLinkDesiredFormat(url: string) {
+  const matchesType1 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/([\w\-]+)\?.*multi_permalinks=([\w\-]+)/i
+  );
+  const matchesType2 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/([\w\-]+)\/posts\/([\w\-]+)/i
+  );
+  const matchesType3 = url.match(
+    /(?:https?:\/\/)?(?:www\.)?facebook\.com\/([\w\-]+)\/?([\w\-]+)/i
+  );
+
+  let pageId, postId;
+
+  if (matchesType1) {
+    pageId = matchesType1[1];
+    postId = matchesType1[2];
+  } else if (matchesType2) {
+    pageId = matchesType2[1];
+    postId = matchesType2[2];
+  } else if (matchesType3) {
+    pageId = matchesType3[1];
+    postId = matchesType3[2];
+  } else {
+    return url.replace("www", "mbasic");
+  }
+
+  return `https://mbasic.facebook.com/${pageId}/posts/${postId}/`;
 }
 
 export function convertToGroupLinkDesiredFormat(url: string) {

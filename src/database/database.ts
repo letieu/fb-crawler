@@ -184,6 +184,17 @@ class Database {
     return rows;
   }
 
+  async getAds() {
+    const query = `SELECT ads.*
+      FROM ads
+      WHERE ads.status = 1 AND ads.created_at > NOW() - INTERVAL 2 DAY
+      ORDER BY ads.created_at DESC
+      `;
+
+    const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
+    return rows;
+  }
+
   async getGroups() {
     const query = "SELECT * FROM group_page WHERE status = 1";
     const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);

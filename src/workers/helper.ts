@@ -22,6 +22,7 @@ export enum QueueName {
   POST_IDS = "post_ids",
   POST_DETAIL = "post_detail",
   ADS_IDS = "ads_ids",
+  ADS_DETAIL = "ads_detail",
   LIKE_PAGE = "like_page",
 }
 
