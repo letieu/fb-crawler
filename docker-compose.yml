@@ -1,14 +1,12 @@
-version: '3.8'
-
+version: "3.8"
 services:
   redis:
     image: bitnami/redis:7.0
     container_name: fb-crawler-redis
     environment:
-      - 'REDIS_PASSWORD=${REDIS_PASSWORD}'
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - fb-crawler-network
-
   id-worker:
     build:
       context: .
@@ -21,7 +19,6 @@ services:
     networks:
       - fb-crawler-network
     entrypoint: ["npm", "run", "start-id-worker"]
-
   id-worker:
     build:
       context: .
@@ -33,8 +30,10 @@ services:
       - redis
     networks:
       - fb-crawler-network
-    entrypoint: ["npm", "run", "start-ads-id-worker"]
-
+    entrypoint:
+      - npm
+      - run
+      - start-ads-id-worker
   detail-worker:
     build:
       context: .
@@ -43,13 +42,15 @@ services:
     env_file:
       - .env
     environment:
-       CHROME_WS_ENDPOINT_DETAIL: ${CHROME_WS_ENDPOINT_DETAIL}
+      CHROME_WS_ENDPOINT_DETAIL: ${CHROME_WS_ENDPOINT_DETAIL}
     depends_on:
       - redis
     networks:
       - fb-crawler-network
-    entrypoint: ["npm", "run", "start-detail-worker"]
-
+    entrypoint:
+      - npm
+      - run
+      - start-detail-worker
   detail-worker-2:
     build:
       context: .
@@ -63,8 +64,10 @@ services:
       - redis
     networks:
       - fb-crawler-network
-    entrypoint: ["npm", "run", "start-detail-worker"]
-
+    entrypoint:
+      - npm
+      - run
+      - start-detail-worker
   board:
     build:
       context: .
@@ -77,9 +80,11 @@ services:
     networks:
       - fb-crawler-network
     ports:
-      - "3123:3123"
-    entrypoint: ["npm", "run", "start-board"]
-
+      - 3123:3123
+    entrypoint:
+      - npm
+      - run
+      - start-board
   chrome1:
     image: browserless/chrome
     container_name: fb-crawler-chrome1
@@ -89,7 +94,6 @@ services:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3111:3000
-
   chrome2:
     image: browserless/chrome
     container_name: fb-crawler-chrome2
@@ -99,7 +103,6 @@ services:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3222:3000
-
   chrome3:
     image: browserless/chrome
     container_name: fb-crawler-chrome3
@@ -109,7 +112,6 @@ services:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3333:3000
-
 networks:
   fb-crawler-network:
     driver: bridge
