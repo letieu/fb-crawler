@@ -30,16 +30,16 @@ docker-compose exec exec board node dist/scripts/producers/post-detail.js
 
 ## Crontab
 ```
-0 0 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/mark-expire-post.js >> /var/log/fb-crawl-expire.log
+0 0 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/mark-expire-post.js >> /var/log/fb-crawl-expire.log
 
-0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
+0 1,13 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
 
-0 2,14 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/like-page.js >> /var/log/fb-crawl-like-page.log
+0 2,14 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/like-page.js >> /var/log/fb-crawl-like-page.log
 
-0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-id.js >> /var/log/fb-crawl-ads-id.log
+0 3,15 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-id.js >> /var/log/fb-crawl-ads-id.log
 
-0 4,16 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
+0 4,16 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
 
-0 5,17 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-detail.js >> /var/log/fb-crawl-ads-detail.log
+0 5,17 * * * /usr/bin/docker compose -f /root/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-detail.js >> /var/log/fb-crawl-ads-detail.log
 
 ```
