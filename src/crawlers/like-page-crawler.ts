@@ -9,6 +9,10 @@ import "dotenv/config";
 
 const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
+export type LikePageResult = {
+  liked: number
+};
+
 // crawl post ids from group, (not page)
 export class LikePageCrawler {
   account: Account;
@@ -20,7 +24,7 @@ export class LikePageCrawler {
     return this;
   }
 
-  async start(pageUrls: string[]) {
+  async start(pageUrls: string[]): Promise<LikePageResult> {
     let liked = 0;
 
     let browser: Browser;

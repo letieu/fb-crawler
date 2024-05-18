@@ -11,9 +11,9 @@ import { AdsIdsCrawler, AdsIdsResult } from "../crawlers/ads-ids-crawler";
 
 const db = Database.getInstance();
 
-export async function startPostIdWorker() {
+export async function startAdsIdWorker() {
   const worker = new Worker<AdsIdJobData, AdsIdJobResult>(
-    QueueName.POST_IDS,
+    QueueName.ADS_IDS,
     crawlHandler,
     {
       connection: getRedisConnection(),
@@ -24,8 +24,8 @@ export async function startPostIdWorker() {
   async function crawlHandler(job: Job<AdsIdJobData>) {
     const { account } = job.data;
 
-    const postIdCrawler = new AdsIdsCrawler();
-    const result = await postIdCrawler.setAccount(account).start();
+    const adsIdCrawler = new AdsIdsCrawler();
+    const result = await adsIdCrawler.setAccount(account).start();
 
     if (result.success) {
       await db.saveAdsLinks(result.data as AdsIdsResult);

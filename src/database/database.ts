@@ -1,8 +1,8 @@
-import * as mysql from 'mysql2/promise';
-import { Account, getAdsIdFromUrl, getPostIdFromUrl } from '../crawlers/helper';
-import { OkPacket, RowDataPacket } from 'mysql2/promise';
-import { getDbConfig } from './helper';
-import { AdsIdsResult } from '../crawlers/ads-ids-crawler';
+import * as mysql from "mysql2/promise";
+import { Account, getAdsIdFromUrl, getPostIdFromUrl } from "../crawlers/helper";
+import { OkPacket, RowDataPacket } from "mysql2/promise";
+import { getDbConfig } from "./helper";
+import { AdsIdsResult } from "../crawlers/ads-ids-crawler";
 
 type Comment = {
   commentId: string;
@@ -11,13 +11,13 @@ type Comment = {
   uid: string;
   comment: string;
   time: string;
-}
+};
 
 type Post = {
   content: string;
   link: string;
   comments: Comment[];
-}
+};
 
 export enum AccountStatus {
   ACTIVE = 1,
@@ -49,9 +49,9 @@ class Database {
       idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
       queueLimit: 0,
       enableKeepAlive: true,
-      keepAliveInitialDelay: 0
+      keepAliveInitialDelay: 0,
     });
-    console.log('Database initialized');
+    console.log("Database initialized");
   }
 
   static getInstance() {
@@ -70,7 +70,10 @@ class Database {
 
     await this.pool.query<mysql.OkPacket>(query, values);
 
-    const [rows] = await this.pool.query<RowDataPacket[]>(`SELECT id FROM posts WHERE fb_id = ?`, [postFbId]);
+    const [rows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT id FROM posts WHERE fb_id = ?`,
+      [postFbId]
+    );
 
     const postDatabaseId = rows[0].id;
 
@@ -79,7 +82,7 @@ class Database {
 
   async savePostLinks(postLinks: string[], groupId: number) {
     if (postLinks.length === 0) {
-      console.log('No post links to insert.');
+      console.log("No post links to insert.");
       return;
     }
 
@@ -87,25 +90,28 @@ class Database {
     const placeholders = [];
 
     for (const link of postLinks) {
-      placeholders.push('(?, ?, ?)');
+      placeholders.push("(?, ?, ?)");
       values.push(link, getPostIdFromUrl(link), groupId);
     }
 
-    const placeholdersString = placeholders.join(', ');
+    const placeholdersString = placeholders.join(", ");
 
     const query = `REPLACE INTO posts (link, fb_id, group_id) VALUES ${placeholdersString}`;
 
     try {
-      const [rows, fields] = await this.pool.query<RowDataPacket[]>(query, values);
+      const [rows, fields] = await this.pool.query<RowDataPacket[]>(
+        query,
+        values
+      );
       console.log(`Inserted ${postLinks.length} post links`);
     } catch (error) {
-      console.error('Error inserting post:', error);
+      console.error("Error inserting post:", error);
     }
   }
 
   async saveAdsLinks(ads: string[]) {
     if (ads.length === 0) {
-      console.log('No ads links to insert.');
+      console.log("No ads links to insert.");
       return;
     }
 
@@ -113,25 +119,29 @@ class Database {
     const placeholders = [];
 
     for (const link of ads) {
-      placeholders.push('(?, ?)');
-      values.push(link, getAdsIdFromUrl(link));
+      const { pageId, postId } = getAdsIdFromUrl(link);
+      placeholders.push("(?, ?, ?)");
+      values.push(link, postId, pageId);
     }
 
-    const placeholdersString = placeholders.join(', ');
+    const placeholdersString = placeholders.join(", ");
 
-    const query = `REPLACE INTO ads (link, fb_id) VALUES ${placeholdersString}`;
+    const query = `REPLACE INTO ads (link, fb_id, page_id) VALUES ${placeholdersString}`;
 
     try {
-      const [rows, fields] = await this.pool.query<RowDataPacket[]>(query, values);
+      const [rows, fields] = await this.pool.query<RowDataPacket[]>(
+        query,
+        values
+      );
       console.log(`Inserted ${ads.length} ads links`);
     } catch (error) {
-      console.error('Error inserting ads:', error);
+      console.error("Error inserting ads:", error);
     }
   }
 
   async saveComments(postId: number, comments: Comment[]) {
     if (comments.length === 0) {
-      console.log('No comments to insert.');
+      console.log("No comments to insert.");
       return;
     }
 
@@ -139,11 +149,18 @@ class Database {
     const placeholders = [];
 
     for (const comment of comments) {
-      placeholders.push('(?, ?, ?, ?, ?, ?)');
-      values.push(comment.commentId, comment.name, comment.uid, comment.comment, postId, comment.time);
+      placeholders.push("(?, ?, ?, ?, ?, ?)");
+      values.push(
+        comment.commentId,
+        comment.name,
+        comment.uid,
+        comment.comment,
+        postId,
+        comment.time
+      );
     }
 
-    const placeholdersString = placeholders.join(', ');
+    const placeholdersString = placeholders.join(", ");
 
     const query = `INSERT IGNORE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
 
@@ -151,7 +168,7 @@ class Database {
       const [rows, fields] = await this.pool.query(query, values);
       console.log(`Inserted ${comments.length} comments`);
     } catch (error) {
-      console.error('Error inserting comments:', error);
+      console.error("Error inserting comments:", error);
     }
   }
 
@@ -168,19 +185,19 @@ class Database {
   }
 
   async getGroups() {
-    const query = 'SELECT * FROM group_page WHERE status = 1';
+    const query = "SELECT * FROM group_page WHERE status = 1";
     const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
     return rows;
   }
 
   async getPost(postId: string) {
-    const query = 'SELECT * FROM posts WHERE id = ?';
+    const query = "SELECT * FROM posts WHERE id = ?";
     const [rows, fields] = await this.pool.query(query, [postId]);
     return rows[0];
   }
 
   async getAccounts(): Promise<Account[]> {
-    const query = 'SELECT * FROM account WHERE status = 1';
+    const query = "SELECT * FROM account WHERE status = 1";
 
     const [rows, fields] = await this.pool.query(query);
 
@@ -194,7 +211,7 @@ class Database {
   }
 
   async updateAccountStatus(username: string, status: AccountStatus) {
-    const query = 'UPDATE account SET status = ? WHERE username = ?';
+    const query = "UPDATE account SET status = ? WHERE username = ?";
 
     const [rows, fields] = await this.pool.query(query, [status, username]);
 
@@ -230,11 +247,14 @@ class Database {
 
     const accounts = await db.getAccounts();
     if (accounts.length === 0) {
-      throw new Error('No account found');
+      throw new Error("No account found");
     }
 
     const selectedAccount = accounts[0];
-    await db.updateAccountStatus(selectedAccount.username, AccountStatus.IN_USE);
+    await db.updateAccountStatus(
+      selectedAccount.username,
+      AccountStatus.IN_USE
+    );
 
     return selectedAccount;
   }
