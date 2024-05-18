@@ -82,15 +82,15 @@ class Database {
 
   async saveAds(post: Post) {
     const query = "UPDATE ads SET title = ? WHERE fb_id = ?";
-    const postFbId = getPostIdFromUrl(post.link);
+    const adsFbId = getAdsIdFromUrl(post.link);
 
-    const values = [post.content, postFbId];
+    const values = [post.content, adsFbId];
 
     await this.pool.query<mysql.OkPacket>(query, values);
 
     const [rows] = await this.pool.query<RowDataPacket[]>(
       `SELECT id FROM ads WHERE fb_id = ?`,
-      [postFbId]
+      [adsFbId]
     );
 
     const postDatabaseId = rows[0].id;
