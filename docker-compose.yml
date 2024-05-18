@@ -19,11 +19,11 @@ services:
     networks:
       - fb-crawler-network
     entrypoint: ["npm", "run", "start-id-worker"]
-  id-worker:
+  ads-id-worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: id-worker
+    container_name: ads-id-worker
     env_file:
       - .env
     depends_on:
@@ -34,6 +34,21 @@ services:
       - npm
       - run
       - start-ads-id-worker
+  like-page-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: like-page-worker
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - fb-crawler-network
+    entrypoint:
+      - npm
+      - run
+      - start-like-page-worker
   detail-worker:
     build:
       context: .

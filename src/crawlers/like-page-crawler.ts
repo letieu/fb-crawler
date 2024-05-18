@@ -1,6 +1,7 @@
 import { Browser, Page } from "puppeteer-core";
 import {
   Account,
+  CrawlResult,
   delayRandomTime,
   initPuppeter,
   loginFacebook,
@@ -10,7 +11,7 @@ import "dotenv/config";
 const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 export type LikePageResult = {
-  liked: number
+  liked: number;
 };
 
 // crawl post ids from group, (not page)
@@ -24,8 +25,14 @@ export class LikePageCrawler {
     return this;
   }
 
-  async start(pageUrls: string[]): Promise<LikePageResult> {
-    let liked = 0;
+  async start(pageUrls: string[]) {
+    let res: CrawlResult<LikePageResult> = {
+      success: false,
+      loginFailed: false,
+      data: {
+        liked: 0,
+      },
+    };
 
     let browser: Browser;
 
@@ -42,7 +49,7 @@ export class LikePageCrawler {
         for await (const url of pageUrls) {
           try {
             await this.likePage(page, url);
-            liked++;
+            res.data.liked++;
           } catch (e) {
             console.error(e);
           }
@@ -56,7 +63,7 @@ export class LikePageCrawler {
       await delayRandomTime(3000, 8000);
     }
 
-    return { liked };
+    return res;
   }
 
   async likePage(page: Page, url: string) {
@@ -67,7 +74,7 @@ export class LikePageCrawler {
 
     await Promise.all([
       page.$eval(`[aria-label="Like"]`, (element) => (element as any).click()),
-      await delayRandomTime(3000, 5000)
+      await delayRandomTime(3000, 5000),
     ]);
 
     console.log("after like");

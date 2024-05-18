@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import Database from '../database/database';
 import { LikePageJobData, LikePageJobResult, QueueName, getRedisConnection } from '../workers/helper';
 
-export const likePageQueue = new Queue<LikePageJobData, LikePageJobResult>(QueueName.ADS_IDS, {
+export const likePageQueue = new Queue<LikePageJobData, LikePageJobResult>(QueueName.LIKE_PAGE, {
   connection: getRedisConnection()
 });
 

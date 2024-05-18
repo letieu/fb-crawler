@@ -190,6 +190,12 @@ class Database {
     return rows;
   }
 
+  async getPages() {
+    const query = "SELECT * FROM page WHERE status = 1";
+    const [rows, fields] = await this.pool.query<RowDataPacket[]>(query);
+    return rows;
+  }
+
   async getPost(postId: string) {
     const query = "SELECT * FROM posts WHERE id = ?";
     const [rows, fields] = await this.pool.query(query, [postId]);

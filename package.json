@@ -9,6 +9,7 @@
     "start-id-worker": "node dist/scripts/workers/post-id.js",
     "start-detail-worker": "node dist/scripts/workers/post-detail.js",
     "start-ads-id-worker": "node dist/scripts/workers/ads-id.js",
+    "start-like-page-worker": "node dist/scripts/workers/like-page.js",
     "start-board": "node dist/scripts/board.js",
     "start": "concurrently \"npm:start-id-worker\" \"npm:start-detail-worker\" \"npm:start-board\" "
   },
