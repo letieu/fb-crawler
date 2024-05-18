@@ -20,8 +20,8 @@ docker-compose logs chrome1 -f
 docker-compose logs chrome2 -f
 
 # logs worker
-docker-compose logs id-worker -f
-docker-compose logs detail-worker -f
+docker compose logs id-worker -f
+docker compose logs detail-worker -f
 
 # produce job
 docker-compose exec exec board node dist/scripts/producers/post-id.js

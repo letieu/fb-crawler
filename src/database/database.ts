@@ -80,6 +80,24 @@ class Database {
     await this.saveComments(postDatabaseId, post.comments);
   }
 
+  async saveAds(post: Post) {
+    const query = "UPDATE ads SET title = ? WHERE fb_id = ?";
+    const postFbId = getPostIdFromUrl(post.link);
+
+    const values = [post.content, postFbId];
+
+    await this.pool.query<mysql.OkPacket>(query, values);
+
+    const [rows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT id FROM ads WHERE fb_id = ?`,
+      [postFbId]
+    );
+
+    const postDatabaseId = rows[0].id;
+
+    await this.saveAdsComments(postDatabaseId, post.comments);
+  }
+
   async savePostLinks(postLinks: string[], groupId: number) {
     if (postLinks.length === 0) {
       console.log("No post links to insert.");
@@ -163,6 +181,39 @@ class Database {
     const placeholdersString = placeholders.join(", ");
 
     const query = `INSERT IGNORE INTO comments (fb_id, name, uid, comment, post_id, time) VALUES ${placeholdersString}`;
+
+    try {
+      const [rows, fields] = await this.pool.query(query, values);
+      console.log(`Inserted ${comments.length} comments`);
+    } catch (error) {
+      console.error("Error inserting comments:", error);
+    }
+  }
+
+  async saveAdsComments(adsId: number, comments: Comment[]) {
+    if (comments.length === 0) {
+      console.log("No comments to insert.");
+      return;
+    }
+
+    const values = [];
+    const placeholders = [];
+
+    for (const comment of comments) {
+      placeholders.push("(?, ?, ?, ?, ?, ?)");
+      values.push(
+        comment.commentId,
+        comment.name,
+        comment.uid,
+        comment.comment,
+        adsId,
+        comment.time
+      );
+    }
+
+    const placeholdersString = placeholders.join(", ");
+
+    const query = `INSERT IGNORE INTO ads_comments (fb_id, name, uid, comment, ads_id, time) VALUES ${placeholdersString}`;
 
     try {
       const [rows, fields] = await this.pool.query(query, values);

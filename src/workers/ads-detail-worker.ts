@@ -36,7 +36,7 @@ export async function startAdsDetailWorker() {
 
     if (result.success) {
       const data = result.data as PostDetailResult;
-      await db.savePost({
+      await db.saveAds({
         content: data.content,
         link: data.link,
         comments: data.comments,
