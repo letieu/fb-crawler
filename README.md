@@ -34,6 +34,8 @@ docker-compose exec exec board node dist/scripts/producers/post-detail.js
 
 0 1,13 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-id.js >> /var/log/fb-crawl-id.log
 
+0 2,14 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-id.js >> /var/log/fb-crawl-ads-id.log
+
 0 3,15 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
 
 ```

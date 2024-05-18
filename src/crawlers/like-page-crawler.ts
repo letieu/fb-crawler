@@ -4,12 +4,7 @@ import {
   delayRandomTime,
   initPuppeter,
   loginFacebook,
-  getPostLinkFromPostId,
-  CrawlResult,
-  getGroupIdFromUrl,
-  convertToGroupLinkDesiredFormat,
 } from "./helper";
-import { parsePostIds } from "../parsers/post-ids-parser";
 import "dotenv/config";
 
 const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;

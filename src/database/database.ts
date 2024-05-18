@@ -1,7 +1,8 @@
 import * as mysql from 'mysql2/promise';
-import { Account, getPostIdFromUrl } from '../crawlers/helper';
+import { Account, getAdsIdFromUrl, getPostIdFromUrl } from '../crawlers/helper';
 import { OkPacket, RowDataPacket } from 'mysql2/promise';
 import { getDbConfig } from './helper';
+import { AdsIdsResult } from '../crawlers/ads-ids-crawler';
 
 type Comment = {
   commentId: string;
@@ -99,6 +100,32 @@ class Database {
       console.log(`Inserted ${postLinks.length} post links`);
     } catch (error) {
       console.error('Error inserting post:', error);
+    }
+  }
+
+  async saveAdsLinks(ads: string[]) {
+    if (ads.length === 0) {
+      console.log('No ads links to insert.');
+      return;
+    }
+
+    const values = [];
+    const placeholders = [];
+
+    for (const link of ads) {
+      placeholders.push('(?, ?)');
+      values.push(link, getAdsIdFromUrl(link));
+    }
+
+    const placeholdersString = placeholders.join(', ');
+
+    const query = `REPLACE INTO ads (link, fb_id) VALUES ${placeholdersString}`;
+
+    try {
+      const [rows, fields] = await this.pool.query<RowDataPacket[]>(query, values);
+      console.log(`Inserted ${ads.length} ads links`);
+    } catch (error) {
+      console.error('Error inserting ads:', error);
     }
   }
 

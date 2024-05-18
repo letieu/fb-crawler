@@ -231,6 +231,10 @@ export function getPostIdFromUrl(postUrl) {
   return null;
 }
 
+export function getAdsIdFromUrl(adsUrl) {
+  // TODO: hdnel
+}
+
 export async function close(browser: Browser) {
   if (process.env.DEBUG === "true") {
     // do not close browser

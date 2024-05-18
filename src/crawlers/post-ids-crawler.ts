@@ -7,7 +7,6 @@ const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 export type PostIdsResult = string[];
 
-
 // crawl post ids from group, (not page)
 export class PostIdsCrawler {
   url: string;
