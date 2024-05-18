@@ -231,8 +231,9 @@ export function getPostIdFromUrl(postUrl) {
   return null;
 }
 
-export function getAdsIdFromUrl(adsUrl) {
-  // TODO: hdnel
+export function getAdsIdFromUrl(adsUrl: string) {
+  //https://www.facebook.com/100047389671164/posts/1001485168107796 -> 1001485168107796
+  return adsUrl.split("/").pop()
 }
 
 export async function close(browser: Browser) {
