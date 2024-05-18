@@ -82,7 +82,7 @@ class Database {
 
   async saveAds(post: Post) {
     const query = "UPDATE ads SET title = ? WHERE fb_id = ?";
-    const adsFbId = getAdsIdFromUrl(post.link);
+    const { postId: adsFbId } = getAdsIdFromUrl(post.link);
 
     const values = [post.content, adsFbId];
 
