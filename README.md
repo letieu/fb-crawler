@@ -40,4 +40,6 @@ docker-compose exec exec board node dist/scripts/producers/post-detail.js
 
 0 4,16 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/post-detail.js >> /var/log/fb-crawl-detail.log
 
+0 5,17 * * * /usr/local/bin/docker-compose -f /home/datatracking/fb-crawler/docker-compose.yml exec board node dist/scripts/producers/ads-detail.js >> /var/log/fb-crawl-ads-detail.log
+
 ```
