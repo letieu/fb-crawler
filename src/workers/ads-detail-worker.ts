@@ -39,7 +39,8 @@ export async function startAdsDetailWorker() {
       await db.saveAds({
         content: data.content,
         link: data.link,
-        comments: data.comments,
+        //comments: data.comments,
+        comments: [],
       });
     } else if (result.loginFailed) {
       console.log('Login failed, trying to get new account');

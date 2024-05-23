@@ -85,7 +85,7 @@ export class AdsDetailCrawler {
 
         const post = await this.getPostContent(page);
 
-        res.data.comments = await this.getComments(page);
+        //res.data.comments = await this.getComments(page);
 
         res.data.content = post.content;
         res.data.userId = post.uid;

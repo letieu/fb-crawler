@@ -88,14 +88,14 @@ class Database {
 
     await this.pool.query<mysql.OkPacket>(query, values);
 
-    const [rows] = await this.pool.query<RowDataPacket[]>(
-      `SELECT id FROM ads WHERE fb_id = ?`,
-      [adsFbId]
-    );
+    //const [rows] = await this.pool.query<RowDataPacket[]>(
+    //  `SELECT id FROM ads WHERE fb_id = ?`,
+    //  [adsFbId]
+    //);
 
-    const postDatabaseId = rows[0].id;
+    //const postDatabaseId = rows[0].id;
 
-    await this.saveAdsComments(postDatabaseId, post.comments);
+    //await this.saveAdsComments(postDatabaseId, post.comments);
   }
 
   async savePostLinks(postLinks: string[], groupId: number) {
