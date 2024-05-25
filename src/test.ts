@@ -1,7 +1,5 @@
 import "dotenv/config";
-import { AdsIdsCrawler } from "./crawlers/ads-ids-crawler";
-import { PostDetailCrawler } from "./crawlers/post-comments-crawler";
-import { AdsDetailCrawler } from "./crawlers/ads-comments-crawler";
+import { LikePageCrawler } from "./crawlers/like-page-crawler";
 
 const account = {
   username: "100074448351348",
@@ -18,11 +16,12 @@ async function testCrawl() {
   //]);
   //console.log(res)
 
-  const crawler = new AdsDetailCrawler(
-    "https://www.facebook.com/61555737450715/posts/122143842560191248"
-  );
+  const crawler = new LikePageCrawler();
   crawler.setAccount(account);
-  const result = await crawler.start();
+  const result = await crawler.start([
+    "https://www.facebook.com/profile.php?id=61553776500279",
+    "https://www.facebook.com/giadungtienich050968",
+  ]);
 
   console.log(result);
 }

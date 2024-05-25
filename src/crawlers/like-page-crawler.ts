@@ -68,12 +68,14 @@ export class LikePageCrawler {
 
   async likePage(page: Page, url: string) {
     await page.goto(url, { waitUntil: "networkidle2" });
-    await page.waitForSelector('[aria-label="Like"]', {
+    await page.waitForSelector('[aria-label="Like"], [aria-label="Thích"]', {
       timeout: 10_000,
     });
 
     await Promise.all([
-      page.$eval(`[aria-label="Like"]`, (element) => (element as any).click()),
+      page.$eval(`[aria-label="Like"], [aria-label="Thích"]`, (element) =>
+        (element as any).click()
+      ),
       await delayRandomTime(3000, 5000),
     ]);
 
