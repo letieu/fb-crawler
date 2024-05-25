@@ -27,6 +27,7 @@ export type PostDetailResult = {
   link: string;
   content: string;
   userId: string;
+  time: string;
   comments: CommentResult[];
 };
 
@@ -64,6 +65,7 @@ export class AdsDetailCrawler {
         content: null,
         userId: null,
         comments: [],
+        time: "",
       },
     };
 
@@ -89,6 +91,7 @@ export class AdsDetailCrawler {
 
         res.data.content = post.content;
         res.data.userId = post.uid;
+        res.data.time = post.time;
         res.success = true;
       } else {
         res.loginFailed = true;
@@ -141,7 +144,7 @@ export class AdsDetailCrawler {
         const link = await page.$eval(loadMoreSelector, (el) => {
           const href = el.getAttribute("href");
           const origin = location.origin;
-          return origin + href
+          return origin + href;
         });
 
         await page.goto(link, { waitUntil: "networkidle2" });

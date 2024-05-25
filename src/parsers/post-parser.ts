@@ -33,8 +33,14 @@ export const parsePost = () => {
     return match ? match[1] : null;
   }
 
+  const getTime = () => {
+    const timeElement = document.querySelector("footer div > abbr") as HTMLElement;
+    return timeElement.textContent;
+  }
+
   return {
     content: getContent(),
     uid: getUid(),
+    time: getTime(),
   };
 }

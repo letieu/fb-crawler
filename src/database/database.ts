@@ -19,6 +19,12 @@ type Post = {
   comments: Comment[];
 };
 
+type Ads = {
+  content: string;
+  link: string;
+  time: string;
+};
+
 export enum AccountStatus {
   ACTIVE = 1,
   INACTIVE = 2,
@@ -80,11 +86,11 @@ class Database {
     await this.saveComments(postDatabaseId, post.comments);
   }
 
-  async saveAds(post: Post) {
-    const query = "UPDATE ads SET title = ? WHERE fb_id = ?";
+  async saveAds(post: Ads) {
+    const query = "UPDATE ads SET title = ?, time = ? WHERE fb_id = ?";
     const { postId: adsFbId } = getAdsIdFromUrl(post.link);
 
-    const values = [post.content, adsFbId];
+    const values = [post.content, post.time, adsFbId];
 
     await this.pool.query<mysql.OkPacket>(query, values);
 

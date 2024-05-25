@@ -1,11 +1,18 @@
-import 'dotenv/config';
-import { Job, Worker } from 'bullmq';
-import Database, { AccountStatus } from '../database/database';
-import { PostDetailResult } from '../crawlers/post-comments-crawler';
-import { PostDetailJobData, PostDetailJobResult, QueueName, getRedisConnection } from './helper';
-import { AdsDetailCrawler } from '../crawlers/ads-comments-crawler';
+import "dotenv/config";
+import { Job, Worker } from "bullmq";
+import Database, { AccountStatus } from "../database/database";
+import {
+  PostDetailJobData,
+  PostDetailJobResult,
+  QueueName,
+  getRedisConnection,
+} from "./helper";
+import {
+  AdsDetailCrawler,
+  PostDetailResult,
+} from "../crawlers/ads-comments-crawler";
 
-const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || '20');
+const commentLimit = parseInt(process.env.POST_COMMENTS_LIMIT || "20");
 
 console.log(`Comment limit: ${commentLimit}`);
 
@@ -30,20 +37,19 @@ export async function startAdsDetailWorker() {
     const result = await postDetailCrawler
       .setLimit(commentLimit)
       .setAccount(account)
-      .start()
+      .start();
 
-    console.log('Ads detail result: ', result);
+    console.log("Ads detail result: ", result);
 
     if (result.success) {
       const data = result.data as PostDetailResult;
       await db.saveAds({
         content: data.content,
         link: data.link,
-        //comments: data.comments,
-        comments: [],
+        time: data.time,
       });
     } else if (result.loginFailed) {
-      console.log('Login failed, trying to get new account');
+      console.log("Login failed, trying to get new account");
       await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
       account = await db.getNewAccount();
       console.log(`Got new account ${account.username}`);
@@ -58,6 +64,6 @@ export async function startAdsDetailWorker() {
     return result;
   }
 
-  console.log('Ads detail worker started with account: ', account.username);
+  console.log("Ads detail worker started with account: ", account.username);
   return worker;
 }
