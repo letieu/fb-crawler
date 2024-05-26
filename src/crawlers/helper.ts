@@ -6,6 +6,7 @@ export type Account = {
   username: string;
   password: string;
   secretCode: string;
+  liked: string[];
 };
 
 export type CrawlResult<T> = {

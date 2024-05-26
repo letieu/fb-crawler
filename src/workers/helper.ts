@@ -42,6 +42,7 @@ export type AdsIdJobData = {
 
 export type LikePageJobData = {
   account: Account;
+  pageLinks: string[];
 };
 
 export type PostIdJobResult = CrawlResult<PostIdsResult>;

@@ -22,12 +22,10 @@ export async function startLikePageWorker() {
   );
 
   async function crawlHandler(job: Job<LikePageJobData>) {
-    const { account } = job.data;
-    const posts = await db.getPages();
-    const postLinks: string[] = posts.map((p) => p.link);
+    const { account, pageLinks } = job.data;
 
     const postIdCrawler = new LikePageCrawler();
-    const result = await postIdCrawler.setAccount(account).start(postLinks);
+    const result = await postIdCrawler.setAccount(account).start(pageLinks);
 
     // Wait 1 seconds before processing next job
     await new Promise((resolve) => setTimeout(resolve, 1000 * 10));

@@ -276,11 +276,19 @@ class Database {
 
     const [rows, fields] = await this.pool.query(query);
 
-    return (rows as any).map((row) => {
+    return (rows as any).map((row: any) => {
+      let liked: string[];
+      try {
+        liked = JSON.parse(row.liked);
+      } catch (e) {
+        liked = [];
+      }
+
       return {
         username: row.username,
         password: row.password,
         secretCode: row.two_fa,
+        liked: liked,
       };
     });
   }
