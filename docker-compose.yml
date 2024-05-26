@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   redis:
+    restart: on-failure:5
     image: bitnami/redis:7.0
     container_name: fb-crawler-redis
     environment:
@@ -8,6 +9,7 @@ services:
     networks:
       - fb-crawler-network
   id-worker:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,6 +25,7 @@ services:
       - run
       - start-id-worker
   ads-id-worker:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -38,6 +41,7 @@ services:
       - run
       - start-ads-id-worker
   like-page-worker:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -53,6 +57,7 @@ services:
       - run
       - start-like-page-worker
   detail-worker:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -70,6 +75,7 @@ services:
       - run
       - start-detail-worker
   ads-detail-worker:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -87,6 +93,7 @@ services:
       - run
       - start-ads-detail-worker
   detail-worker-2:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -104,6 +111,7 @@ services:
       - run
       - start-detail-worker
   board:
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Dockerfile
@@ -121,6 +129,7 @@ services:
       - run
       - start-board
   chrome1:
+    restart: on-failure:5
     image: browserless/chrome
     container_name: fb-crawler-chrome1
     networks:
@@ -130,6 +139,7 @@ services:
     ports:
       - 3111:3000
   chrome2:
+    restart: on-failure:5
     image: browserless/chrome
     container_name: fb-crawler-chrome2
     networks:
@@ -139,6 +149,7 @@ services:
     ports:
       - 3222:3000
   chrome3:
+    restart: on-failure:5
     image: browserless/chrome
     container_name: fb-crawler-chrome3
     networks:
