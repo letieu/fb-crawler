@@ -3,6 +3,7 @@ import { Account, getAdsIdFromUrl, getPostIdFromUrl } from "../crawlers/helper";
 import { OkPacket, RowDataPacket } from "mysql2/promise";
 import { getDbConfig } from "./helper";
 import { AdsIdsResult } from "../crawlers/ads-ids-crawler";
+import { createCrawlPostIdsJobs } from "../queues/post-id-queue";
 
 type Comment = {
   commentId: string;
@@ -331,6 +332,29 @@ class Database {
     );
 
     return selectedAccount;
+  }
+
+  async saveLiked(username: string, liked: string[]) {
+    const searchQuery = "SELECT page_liked FROM account WHERE username = ?";
+    const [rows, fields] = await this.pool.query(searchQuery, [username]);
+
+    const account = rows[0];
+    if (!account) {
+      console.error(`Account not found ${username}`);
+      return;
+    }
+
+    let currentLiked: string[];
+    try {
+      currentLiked = JSON.parse(account.liked);
+    } catch (e) {
+      currentLiked = [];
+    }
+
+    const newLiked = [...new Set([...currentLiked, ...liked])];
+
+    const updateQuery = "UPDATE account SET liked = ? WHERE username = ?";
+    await this.pool.query(updateQuery, [JSON.stringify(newLiked), username]);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Browser, Page } from "puppeteer-core";
+import { Browser, KnownDevices, Page } from "puppeteer-core";
 import {
   Account,
   CrawlResult,
@@ -11,7 +11,7 @@ import "dotenv/config";
 const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
 
 export type LikePageResult = {
-  liked: number;
+  liked: string[];
 };
 
 // crawl post ids from group, (not page)
@@ -30,7 +30,7 @@ export class LikePageCrawler {
       success: false,
       loginFailed: false,
       data: {
-        liked: 0,
+        liked: [],
       },
     };
 
@@ -39,8 +39,9 @@ export class LikePageCrawler {
     try {
       browser = await initPuppeter(this.account, chromeWsEndpoint);
 
+      const iPhone = KnownDevices["iPhone 13"];
       const page = await browser.newPage();
-      page.setViewport({ width: 1500, height: 764 });
+      await page.emulate(iPhone);
 
       const loginSuccess = await loginFacebook(page, this.account);
       console.log("success", loginSuccess);
@@ -49,7 +50,15 @@ export class LikePageCrawler {
         for await (const url of pageUrls) {
           try {
             await this.likePage(page, url);
-            res.data.liked++;
+            res.data.liked.push(url);
+
+            // back to feed and scroll
+            await page.goto("https://facebook.com", {
+              waitUntil: "networkidle2",
+            });
+            await page.evaluate(() => {
+              window.scrollTo(0, 700);
+            });
           } catch (e) {
             console.error(e);
           }
@@ -78,7 +87,5 @@ export class LikePageCrawler {
       ),
       await delayRandomTime(3000, 5000),
     ]);
-
-    console.log("after like");
   }
 }

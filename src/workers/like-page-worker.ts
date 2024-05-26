@@ -29,13 +29,13 @@ export async function startLikePageWorker() {
     const postIdCrawler = new LikePageCrawler();
     const result = await postIdCrawler.setAccount(account).start(postLinks);
 
-    console.log("Login failed, trying to get new account");
-
-    // Wait 10 seconds after getting new account
-    await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
-
     // Wait 1 seconds before processing next job
     await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
+
+    if (result.success) {
+      const data = result.data;
+      await db.saveLiked(account.username, data.liked);
+    }
 
     return result;
   }
