@@ -343,7 +343,7 @@ class Database {
   }
 
   async saveLiked(username: string, liked: string[]) {
-    const searchQuery = "SELECT page_liked FROM account WHERE username = ?";
+    const searchQuery = "SELECT liked FROM account WHERE username = ?";
     const [rows, fields] = await this.pool.query(searchQuery, [username]);
 
     const account = rows[0];
