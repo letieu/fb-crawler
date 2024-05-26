@@ -5,6 +5,7 @@ const account = {
   username: "61553505221511",
   password: "Ongvang@999",
   secretCode: "TZXGD6QNW5DTRGLYNN7QVRHZUKMG3LOF",
+  liked: []
 };
 
 async function testCrawl() {
