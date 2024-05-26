@@ -279,7 +279,7 @@ class Database {
     return (rows as any).map((row: any) => {
       let liked: string[];
       try {
-        liked = JSON.parse(row.liked);
+        liked = JSON.parse(row.liked ?? "[]");
       } catch (e) {
         liked = [];
       }
