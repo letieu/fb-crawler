@@ -354,7 +354,7 @@ class Database {
 
     let currentLiked: string[];
     try {
-      currentLiked = JSON.parse(account.liked);
+      currentLiked = JSON.parse(account.liked ?? "[]");
     } catch (e) {
       currentLiked = [];
     }
