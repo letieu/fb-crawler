@@ -33,6 +33,9 @@ export async function startLikePageWorker() {
     if (result.success) {
       const data = result.data;
       await db.saveLiked(account.username, data.liked);
+    } else if (result.loginFailed) {
+      await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
     return result;
