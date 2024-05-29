@@ -145,6 +145,8 @@ class Database {
 
     for (const link of ads) {
       const { pageId, postId } = getAdsIdFromUrl(link);
+      if (!postId) continue;
+
       placeholders.push("(?, ?, ?)");
       values.push(link, postId, pageId);
     }
