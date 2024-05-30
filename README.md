@@ -8,10 +8,6 @@ docker-compose build
 docker-compose up -d
 ```
 
-## Queue monitoring
-
-`http://103.147.35.53:3123/queues`
-
 ## Check logs
 
 ```sh
