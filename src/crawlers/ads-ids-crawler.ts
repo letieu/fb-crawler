@@ -9,7 +9,7 @@ import {
 import "dotenv/config";
 import { getAdsLink } from "../parsers/ads-links-parser";
 
-const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ADS_ID;
 
 export type AdsIdsResult = string[];
 

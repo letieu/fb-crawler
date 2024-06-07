@@ -82,8 +82,6 @@ services:
     container_name: ads-detail-worker
     env_file:
       - .env
-    environment:
-      CHROME_WS_ENDPOINT_DETAIL: ${CHROME_WS_ENDPOINT_DETAIL}
     depends_on:
       - redis
     networks:
@@ -128,36 +126,66 @@ services:
       - npm
       - run
       - start-board
-  chrome1:
+  chrome_id:
     restart: on-failure:5
     image: browserless/chrome
-    container_name: fb-crawler-chrome1
+    container_name: fb-crawler-chrome_id
     networks:
       - fb-crawler-network
     environment:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3111:3000
-  chrome2:
+  chrome_detail:
     restart: on-failure:5
     image: browserless/chrome
-    container_name: fb-crawler-chrome2
+    container_name: fb-crawler-chrome_detail
     networks:
       - fb-crawler-network
     environment:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3222:3000
-  chrome3:
+  chrome_detail_2:
     restart: on-failure:5
     image: browserless/chrome
-    container_name: fb-crawler-chrome3
+    container_name: fb-crawler-chrome_detail_2
     networks:
       - fb-crawler-network
     environment:
       - CONNECTION_TIMEOUT=-1
     ports:
       - 3333:3000
+  chrome_ads_id:
+    restart: on-failure:5
+    image: browserless/chrome
+    container_name: fb-crawler-chrome_ads_id
+    networks:
+      - fb-crawler-network
+    environment:
+      - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3334:3000
+  chrome_ads_detail:
+    restart: on-failure:5
+    image: browserless/chrome
+    container_name: fb-crawler-chrome_ads_detail
+    networks:
+      - fb-crawler-network
+    environment:
+      - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3335:3000
+  chrome_page_like:
+    restart: on-failure:5
+    image: browserless/chrome
+    container_name: fb-crawler-chrome_page_like
+    networks:
+      - fb-crawler-network
+    environment:
+      - CONNECTION_TIMEOUT=-1
+    ports:
+      - 3336:3000
 networks:
   fb-crawler-network:
     driver: bridge

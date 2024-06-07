@@ -12,7 +12,7 @@ import {
 } from "./helper";
 import "dotenv/config";
 
-const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_DETAIL;
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ADS_DETAIL;
 
 export type CommentResult = {
   commentId: string;

@@ -9,7 +9,7 @@ import {
 import "dotenv/config";
 import { parse } from "dotenv";
 
-const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_ID;
+const chromeWsEndpoint = process.env.CHROME_WS_ENDPOINT_PAGE_LIKE;
 
 export type LikePageResult = {
   liked: string[];
