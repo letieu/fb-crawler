@@ -104,8 +104,6 @@ export class AdsDetailCrawler {
       await delayRandomTime(3000, 8000);
     }
 
-    console.log(`Finish`, res);
-
     return res;
   }
 

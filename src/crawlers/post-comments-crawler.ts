@@ -55,8 +55,6 @@ export class PostDetailCrawler {
   async start() {
     let browser: Browser;
 
-    console.log(`Start crawling post ${this.postUrl} \n`);
-
     let res: CrawlResult<PostDetailResult> = {
       success: false,
       loginFailed: false,
@@ -101,8 +99,6 @@ export class PostDetailCrawler {
       if (browser) browser.close();
       await delayRandomTime(3000, 8000);
     }
-
-    console.log(`Finish`, res);
 
     return res;
   }

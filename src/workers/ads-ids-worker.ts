@@ -31,7 +31,6 @@ export async function startAdsIdWorker() {
       await db.saveAdsLinks(result.data as AdsIdsResult);
     } else if (result.loginFailed) {
       //await db.updateAccountStatus(account.username, AccountStatus.INACTIVE);
-      console.log(result);
     }
 
     // Wait 1 seconds before processing next job
