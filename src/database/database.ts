@@ -148,7 +148,7 @@ class Database {
       if (!postId) continue;
 
       placeholders.push("(?, ?, ?)");
-      values.push(link, postId, pageId);
+      values.push(link, postId, pageId ?? 0);
     }
 
     const placeholdersString = placeholders.join(", ");
